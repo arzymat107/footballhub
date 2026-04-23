@@ -20,8 +20,10 @@ const navLinks = [
             <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
                 <!-- Logo -->
                 <Link href="/" class="flex items-center gap-2 font-bold text-lg text-emerald-600 dark:text-emerald-400 shrink-0">
-                    <span class="text-2xl">⚽</span>
-                    <span class="hidden sm:inline">FootballHub</span>
+                    <div class="size-12 rounded-md overflow-hidden shrink-0">
+                        <img src="/logo.jpg" alt="FootballHub" class="size-full object-cover" />
+                    </div>
+                    <span>FootballHub</span>
                 </Link>
 
                 <!-- Desktop nav -->
@@ -47,21 +49,8 @@ const navLinks = [
                             <Shield class="size-3.5" />
                             Admin
                         </Link>
-                        <Link
-                            href="/dashboard"
-                            class="hidden sm:block px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-300 dark:hover:text-emerald-400 dark:hover:bg-emerald-900/20 transition-colors"
-                        >
-                            {{ auth.user.name }}
-                        </Link>
                     </template>
-                    <template v-else>
-                        <Link
-                            href="/login"
-                            class="hidden sm:block px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-300 transition-colors"
-                        >
-                            Sign in
-                        </Link>
-                    </template>
+                    <template v-else />
 
                     <!-- Mobile menu toggle -->
                     <button
@@ -97,23 +86,8 @@ const navLinks = [
                             <Shield class="size-4" />
                             Admin Panel
                         </Link>
-                        <Link
-                            href="/dashboard"
-                            class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-300 transition-colors"
-                            @click="mobileMenuOpen = false"
-                        >
-                            {{ auth.user.name }}
-                        </Link>
                     </template>
-                    <template v-else>
-                        <Link
-                            href="/login"
-                            class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-300 transition-colors"
-                            @click="mobileMenuOpen = false"
-                        >
-                            Sign in
-                        </Link>
-                    </template>
+                    <template v-else />
                 </div>
             </div>
         </header>

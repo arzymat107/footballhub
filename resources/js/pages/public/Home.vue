@@ -13,7 +13,11 @@ defineOptions({ layout: PublicLayout });
     <!-- Hero -->
     <section class="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white">
         <div class="max-w-7xl mx-auto px-4 py-16 md:py-24 text-center">
-            <div class="text-5xl mb-4">⚽</div>
+            <div class="mb-4 flex justify-center">
+                <div class="size-16 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/30">
+                    <img src="/logo.jpg" alt="FootballHub" class="size-full object-cover" />
+                </div>
+            </div>
             <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
                 Your Football Hub
             </h1>
@@ -24,10 +28,6 @@ defineOptions({ layout: PublicLayout });
                 <Link href="/leagues" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-700 font-semibold hover:bg-emerald-50 transition-colors">
                     <Trophy class="size-5" />
                     Browse leagues
-                </Link>
-                <Link v-if="canRegister" href="/register" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-700 text-white font-semibold border border-emerald-500 hover:bg-emerald-600 transition-colors">
-                    Get started
-                    <ArrowRight class="size-5" />
                 </Link>
             </div>
         </div>
