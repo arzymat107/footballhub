@@ -6,16 +6,23 @@ import InputError from '@/components/InputError.vue';
 const props = defineProps<{
     leagues: { id: number; name: string }[];
     division?: { id: number; league_id: number; name: string; level: number; description: string | null };
+    leagueId?: number;
 }>();
 
 defineOptions({ layout: AdminLayout });
 
 const form = useForm({
-    league_id: props.division?.league_id ?? '',
+    league_id: props.division?.league_id ?? props.leagueId ?? '',
     name: props.division?.name ?? '',
     level: props.division?.level ?? 1,
     description: props.division?.description ?? '',
 });
+
+const cancelHref = props.division
+    ? `/admin/leagues/${props.division.league_id}`
+    : props.leagueId
+      ? `/admin/leagues/${props.leagueId}`
+      : '/admin/divisions';
 
 function submit() {
     if (props.division) {
@@ -73,7 +80,7 @@ function submit() {
                 <button type="submit" :disabled="form.processing" class="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors">
                     {{ division ? 'Save changes' : 'Create division' }}
                 </button>
-                <a href="/admin/divisions" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancel</a>
+                <a :href="cancelHref" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancel</a>
             </div>
         </form>
     </div>

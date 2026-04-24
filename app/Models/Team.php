@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Team extends Model
 {
-    protected $fillable = ['name', 'short_name', 'slug', 'logo', 'city', 'country', 'founded_year'];
+    protected $fillable = ['name', 'short_name', 'logo', 'city', 'country', 'founded_year'];
 
     public function seasons(): BelongsToMany
     {

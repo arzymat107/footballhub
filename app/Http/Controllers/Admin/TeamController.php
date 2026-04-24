@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,8 +35,6 @@ class TeamController extends Controller
             'founded_year' => 'nullable|integer|min:1800|max:' . date('Y'),
         ]);
 
-        $data['slug'] = Str::slug($data['name']);
-
         Team::create($data);
 
         return redirect()->route('admin.teams.index')->with('success', 'Team created.');
@@ -59,10 +56,6 @@ class TeamController extends Controller
             'country' => 'nullable|string|max:255',
             'founded_year' => 'nullable|integer|min:1800|max:' . date('Y'),
         ]);
-
-        if ($data['name'] !== $team->name) {
-            $data['slug'] = Str::slug($data['name']);
-        }
 
         $team->update($data);
 

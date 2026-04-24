@@ -46,7 +46,9 @@ function destroy(id: number) {
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                         <tr v-for="league in leagues.data" :key="league.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ league.name }}</td>
+                            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
+                                <Link :href="`/admin/leagues/${league.id}`" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{{ league.name }}</Link>
+                            </td>
                             <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">{{ league.country ?? '—' }}</td>
                             <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">{{ league.divisions_count }}</td>
                             <td class="px-4 py-3">

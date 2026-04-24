@@ -10,12 +10,19 @@ const props = defineProps<{
         status: string; track_players: boolean;
         start_date: string | null; end_date: string | null;
     };
+    divisionId?: number;
 }>();
 
 defineOptions({ layout: AdminLayout });
 
+const cancelHref = props.season
+    ? `/admin/divisions/${props.season.division_id}`
+    : props.divisionId
+      ? `/admin/divisions/${props.divisionId}`
+      : '/admin/seasons';
+
 const form = useForm({
-    division_id: props.season?.division_id ?? '',
+    division_id: props.season?.division_id ?? props.divisionId ?? '',
     name: props.season?.name ?? '',
     format: props.season?.format ?? 'round_robin',
     status: props.season?.status ?? 'upcoming',
@@ -99,7 +106,7 @@ function submit() {
                 <button type="submit" :disabled="form.processing" class="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors">
                     {{ season ? 'Save changes' : 'Create season' }}
                 </button>
-                <a href="/admin/seasons" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancel</a>
+                <a :href="cancelHref" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancel</a>
             </div>
         </form>
     </div>

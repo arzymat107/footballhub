@@ -10,7 +10,7 @@ class Stage extends Model
 {
     protected $fillable = [
         'season_id', 'name', 'type', 'order',
-        'home_away', 'playoff_qualify_count',
+        'home_away', 'wins_required', 'playoff_qualify_count',
     ];
 
     protected $casts = [

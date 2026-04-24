@@ -50,7 +50,6 @@ const statCards = [
                         { label: 'Add league', href: '/admin/leagues/create' },
                         { label: 'Add team', href: '/admin/teams/create' },
                         { label: 'Add player', href: '/admin/players/create' },
-                        { label: 'Add fixture', href: '/admin/fixtures/create' },
                     ]" :key="link.href" :href="link.href"
                         class="px-3 py-2 text-sm text-slateald-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                     >

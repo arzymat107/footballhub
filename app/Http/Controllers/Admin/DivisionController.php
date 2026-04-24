@@ -24,10 +24,20 @@ class DivisionController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function show(Division $division): Response
+    {
+        $division->load(['league', 'seasons' => fn ($q) => $q->orderByDesc('start_date')]);
+
+        return Inertia::render('admin/divisions/Show', [
+            'division' => $division,
+        ]);
+    }
+
+    public function create(Request $request): Response
     {
         return Inertia::render('admin/divisions/Form', [
             'leagues' => League::orderBy('name')->get(['id', 'name']),
+            'leagueId' => $request->integer('league_id') ?: null,
         ]);
     }
 
@@ -40,9 +50,9 @@ class DivisionController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        Division::create($data);
+        $division = Division::create($data);
 
-        return redirect()->route('admin.divisions.index')->with('success', 'Division created.');
+        return redirect()->route('admin.leagues.show', $division->league_id)->with('success', 'Division created.');
     }
 
     public function edit(Division $division): Response
@@ -64,13 +74,14 @@ class DivisionController extends Controller
 
         $division->update($data);
 
-        return redirect()->route('admin.divisions.index')->with('success', 'Division updated.');
+        return redirect()->route('admin.leagues.show', $division->league_id)->with('success', 'Division updated.');
     }
 
     public function destroy(Division $division): RedirectResponse
     {
+        $leagueId = $division->league_id;
         $division->delete();
 
-        return redirect()->route('admin.divisions.index')->with('success', 'Division deleted.');
+        return redirect()->route('admin.leagues.show', $leagueId)->with('success', 'Division deleted.');
     }
 }

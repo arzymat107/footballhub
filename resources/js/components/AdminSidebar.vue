@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import {
-    LayoutDashboard, Trophy, Layers, Users, User, CalendarDays, Swords,
+    LayoutDashboard, Trophy, Users, User, Swords,
 } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -16,8 +16,6 @@ const { isCurrentUrl } = useCurrentUrl();
 const navItems = [
     { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { title: 'Leagues', href: '/admin/leagues', icon: Trophy },
-    { title: 'Divisions', href: '/admin/divisions', icon: Layers },
-    { title: 'Seasons', href: '/admin/seasons', icon: CalendarDays },
     { title: 'Teams', href: '/admin/teams', icon: Users },
     { title: 'Players', href: '/admin/players', icon: User },
     { title: 'Fixtures', href: '/admin/fixtures', icon: Swords },

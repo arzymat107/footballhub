@@ -22,6 +22,15 @@ class LeagueController extends Controller
         ]);
     }
 
+    public function show(League $league): Response
+    {
+        $league->load(['divisions' => fn ($q) => $q->withCount('seasons')->orderBy('level')]);
+
+        return Inertia::render('admin/leagues/Show', [
+            'league' => $league,
+        ]);
+    }
+
     public function create(): Response
     {
         return Inertia::render('admin/leagues/Form');

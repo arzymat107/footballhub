@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Plus, Pencil, Trash2, ClipboardList } from 'lucide-vue-next';
+import { Pencil, Trash2, ClipboardList } from 'lucide-vue-next';
 
 const props = defineProps<{
     fixtures: {
@@ -51,9 +51,6 @@ function formatDate(val: string | null) {
     <div class="p-6 space-y-4">
         <div class="flex items-center justify-between">
             <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100">Fixtures</h1>
-            <Link href="/admin/fixtures/create" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors">
-                <Plus class="size-4" /> New fixture
-            </Link>
         </div>
 
         <!-- Filters -->

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Fixture;
 use App\Models\FixtureLineup;
+use App\Models\Player;
 use App\Models\PlayerTeamSeason;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,16 +19,33 @@ class FixtureDetailController extends Controller
     {
         $fixture->load(['homeTeam', 'awayTeam', 'season', 'round']);
 
-        $seasonPlayers = PlayerTeamSeason::with('player')
+        $seasonPlayerRecords = PlayerTeamSeason::with('player')
             ->where('season_id', $fixture->season_id)
             ->whereIn('team_id', [$fixture->home_team_id, $fixture->away_team_id])
-            ->get()
-            ->groupBy('team_id');
+            ->get();
+
+        $seasonPlayers = $seasonPlayerRecords
+            ->groupBy('team_id')
+            ->map(fn ($group) => $group->map(fn ($r) => [
+                'id' => $r->player->id,
+                'name' => $r->player->name,
+                'position' => $r->player->position,
+            ])->values());
+
+        $registeredPlayerIds = $seasonPlayerRecords->pluck('player_id')->unique();
+        $allPlayers = Player::whereNotIn('id', $registeredPlayerIds)
+            ->orderBy('name')
+            ->get(['id', 'name', 'position']);
 
         $lineups = FixtureLineup::with('player')
             ->where('fixture_id', $fixture->id)
             ->get()
-            ->groupBy('team_id');
+            ->groupBy('team_id')
+            ->map(fn ($group) => $group->map(fn ($l) => [
+                'id' => $l->id,
+                'is_mvp' => $l->is_mvp,
+                'player' => ['id' => $l->player->id, 'name' => $l->player->name],
+            ])->values());
 
         $events = Event::with('player', 'team')
             ->where('fixture_id', $fixture->id)
@@ -37,6 +55,7 @@ class FixtureDetailController extends Controller
         return Inertia::render('admin/fixtures/Detail', [
             'fixture' => $fixture,
             'seasonPlayers' => $seasonPlayers,
+            'allPlayers' => $allPlayers,
             'lineups' => $lineups,
             'events' => $events,
         ]);
