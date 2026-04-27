@@ -11,13 +11,38 @@ use Inertia\Response;
 
 class PlayerController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $players = Player::orderBy('name')->paginate(25);
+        $search = $request->string('search')->trim()->value();
+
+        $players = Player::when($search, fn ($q) => $q->where('name', 'ilike', "%{$search}%"))
+            ->orderBy('name')
+            ->paginate(25)
+            ->withQueryString();
 
         return Inertia::render('admin/players/Index', [
             'players' => $players,
+            'filters' => ['search' => $search],
         ]);
+    }
+
+    public function search(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $name = $request->string('name')->trim()->value();
+
+        if (strlen($name) < 2) {
+            return response()->json([]);
+        }
+
+        $exclude = $request->integer('exclude');
+
+        $matches = Player::where('name', 'ilike', "%{$name}%")
+            ->when($exclude, fn ($q) => $q->where('id', '!=', $exclude))
+            ->orderBy('name')
+            ->limit(5)
+            ->get(['id', 'name', 'nationality', 'position']);
+
+        return response()->json($matches);
     }
 
     public function create(): Response

@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlayerTeamSeason extends Model
 {
-    protected $fillable = ['player_id', 'team_id', 'season_id', 'shirt_number'];
+    protected $fillable = ['player_id', 'team_id', 'season_id', 'shirt_number', 'joined_at', 'left_at'];
+
+    protected $casts = [
+        'joined_at' => 'date',
+        'left_at' => 'date',
+    ];
 
     public function player(): BelongsTo
     {

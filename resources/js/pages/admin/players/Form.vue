@@ -2,6 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import InputError from '@/components/InputError.vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
     player?: { id: number; name: string; nationality: string | null; position: string | null; date_of_birth: string | null };
@@ -14,6 +15,22 @@ const form = useForm({
     nationality: props.player?.nationality ?? '',
     position: props.player?.position ?? '',
     date_of_birth: props.player?.date_of_birth?.substring(0, 10) ?? '',
+});
+
+type PlayerMatch = { id: number; name: string; nationality: string | null; position: string | null };
+const similarPlayers = ref<PlayerMatch[]>([]);
+
+let debounceTimer: ReturnType<typeof setTimeout>;
+watch(() => form.name, (value) => {
+    clearTimeout(debounceTimer);
+    similarPlayers.value = [];
+    if (value.trim().length < 2) return;
+    debounceTimer = setTimeout(async () => {
+        const params = new URLSearchParams({ name: value.trim() });
+        if (props.player) params.set('exclude', String(props.player.id));
+        const res = await fetch(`/admin/players/search?${params}`);
+        similarPlayers.value = await res.json();
+    }, 300);
 });
 
 function submit() {
@@ -36,6 +53,17 @@ function submit() {
                 <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Name *</label>
                 <input v-model="form.name" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Erling Haaland" />
                 <InputError :message="form.errors.name" />
+                <div v-if="similarPlayers.length" class="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 space-y-1">
+                    <p class="text-xs font-medium text-amber-700 dark:text-amber-400">Similar players already exist:</p>
+                    <div v-for="p in similarPlayers" :key="p.id" class="flex items-center justify-between">
+                        <span class="text-xs text-amber-800 dark:text-amber-300">
+                            {{ p.name }}
+                            <span v-if="p.position" class="opacity-70 capitalize"> · {{ p.position }}</span>
+                            <span v-if="p.nationality" class="opacity-70"> · {{ p.nationality }}</span>
+                        </span>
+                        <a :href="`/admin/players/${p.id}/edit`" class="text-xs text-amber-600 dark:text-amber-400 underline hover:no-underline ml-2">Edit</a>
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-1.5">

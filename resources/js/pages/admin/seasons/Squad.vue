@@ -14,6 +14,8 @@ const props = defineProps<{
     squads: Record<number, {
         id: number;
         shirt_number: number | null;
+        joined_at: string | null;
+        left_at: string | null;
         team: { id: number; name: string };
         player: { id: number; name: string; position: string | null };
     }[]>;
@@ -28,6 +30,7 @@ const form = useForm({
     player_id: '',
     team_id: selectedTeam,
     shirt_number: '',
+    joined_at: '',
 });
 
 const currentSquad = computed(() =>
@@ -35,18 +38,34 @@ const currentSquad = computed(() =>
 );
 
 const assignedPlayerIds = computed(() =>
-    new Set(currentSquad.value.map(r => r.player.id))
+    new Set(currentSquad.value.filter(r => r.left_at === null).map(r => r.player.id))
 );
 
 const availablePlayers = computed(() =>
     props.players.filter(p => !assignedPlayerIds.value.has(p.id))
 );
 
+const departureEditId = ref<number | null>(null);
+const departureDate = ref('');
+
 function submit() {
     form.team_id = selectedTeam.value as any;
     form.post(`/admin/seasons/${props.season.id}/squad`, {
-        onSuccess: () => { form.reset('player_id', 'shirt_number'); },
+        onSuccess: () => { form.reset('player_id', 'shirt_number', 'joined_at'); },
     });
+}
+
+function openDepartureEdit(reg: { id: number; left_at: string | null }) {
+    departureEditId.value = reg.id;
+    departureDate.value = reg.left_at ?? '';
+}
+
+function saveDeparture(registrationId: number) {
+    router.patch(
+        `/admin/seasons/${props.season.id}/squad/${registrationId}`,
+        { left_at: departureDate.value || null },
+        { onSuccess: () => { departureEditId.value = null; } },
+    );
 }
 
 function remove(registrationId: number) {
@@ -123,6 +142,14 @@ const positionBadge: Record<string, string> = {
                     placeholder="10"
                 />
             </div>
+            <div class="space-y-1">
+                <label class="text-xs font-medium text-slate-500 dark:text-slate-400">Join date</label>
+                <input
+                    v-model="form.joined_at"
+                    type="date"
+                    class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                />
+            </div>
             <button
                 type="submit"
                 :disabled="!form.player_id || form.processing"
@@ -150,7 +177,7 @@ const positionBadge: Record<string, string> = {
                 <div
                     v-for="reg in currentSquad"
                     :key="reg.id"
-                    class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                    :class="['flex items-center gap-3 px-4 py-2.5 transition-colors', reg.left_at ? 'opacity-50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40']"
                 >
                     <span class="w-7 text-center text-sm font-bold text-slate-400">
                         {{ reg.shirt_number ?? '—' }}
@@ -164,6 +191,24 @@ const positionBadge: Record<string, string> = {
                     >
                         {{ reg.player.position }}
                     </span>
+                    <template v-if="departureEditId === reg.id">
+                        <input
+                            v-model="departureDate"
+                            type="date"
+                            class="px-2 py-1 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        />
+                        <button @click="saveDeparture(reg.id)" class="text-xs px-2 py-1 rounded bg-emerald-600 text-white hover:bg-emerald-700">Save</button>
+                        <button @click="departureEditId = null" class="text-xs text-slate-400 hover:text-slate-600">Cancel</button>
+                    </template>
+                    <template v-else>
+                        <button
+                            @click="openDepartureEdit(reg)"
+                            :class="['text-xs transition-colors', reg.left_at ? 'text-orange-500' : 'text-slate-300 hover:text-slate-500']"
+                            :title="reg.left_at ? `Departed: ${reg.left_at}` : 'Set departure date'"
+                        >
+                            {{ reg.left_at ?? 'Transfer out' }}
+                        </button>
+                    </template>
                     <button
                         @click="remove(reg.id)"
                         class="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"

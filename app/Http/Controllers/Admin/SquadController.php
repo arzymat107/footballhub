@@ -37,12 +37,29 @@ class SquadController extends Controller
             'player_id' => 'required|exists:players,id',
             'team_id' => 'required|exists:teams,id|in:' . $season->teams->pluck('id')->join(','),
             'shirt_number' => 'nullable|integer|min:1|max:99',
+            'joined_at' => 'nullable|date',
         ]);
 
-        PlayerTeamSeason::firstOrCreate(
-            ['player_id' => $data['player_id'], 'team_id' => $data['team_id'], 'season_id' => $season->id],
-            ['shirt_number' => $data['shirt_number'] ?? null]
-        );
+        PlayerTeamSeason::create([
+            'player_id' => $data['player_id'],
+            'team_id' => $data['team_id'],
+            'season_id' => $season->id,
+            'shirt_number' => $data['shirt_number'] ?? null,
+            'joined_at' => $data['joined_at'] ?? null,
+        ]);
+
+        return back();
+    }
+
+    public function update(Request $request, Season $season, PlayerTeamSeason $registration): RedirectResponse
+    {
+        abort_if($registration->season_id !== $season->id, 403);
+
+        $data = $request->validate([
+            'left_at' => 'nullable|date',
+        ]);
+
+        $registration->update(['left_at' => $data['left_at']]);
 
         return back();
     }

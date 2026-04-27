@@ -26,9 +26,9 @@ class SeasonTeamController extends Controller
             ->orderBy('shirt_number')
             ->get();
 
-        $registeredPlayerIds = $registrations->pluck('player_id');
+        $activePlayerIds = $registrations->whereNull('left_at')->pluck('player_id');
 
-        $availablePlayers = Player::whereNotIn('id', $registeredPlayerIds)
+        $availablePlayers = Player::whereNotIn('id', $activePlayerIds)
             ->orderBy('name')
             ->get(['id', 'name', 'position']);
 
@@ -47,12 +47,29 @@ class SeasonTeamController extends Controller
         $data = $request->validate([
             'player_id' => 'required|exists:players,id',
             'shirt_number' => 'nullable|integer|min:1|max:99',
+            'joined_at' => 'nullable|date',
         ]);
 
-        PlayerTeamSeason::firstOrCreate(
-            ['player_id' => $data['player_id'], 'team_id' => $team->id, 'season_id' => $season->id],
-            ['shirt_number' => $data['shirt_number'] ?? null],
-        );
+        PlayerTeamSeason::create([
+            'player_id' => $data['player_id'],
+            'team_id' => $team->id,
+            'season_id' => $season->id,
+            'shirt_number' => $data['shirt_number'] ?? null,
+            'joined_at' => $data['joined_at'] ?? null,
+        ]);
+
+        return back();
+    }
+
+    public function update(Request $request, Season $season, Team $team, PlayerTeamSeason $registration): RedirectResponse
+    {
+        abort_if($registration->season_id !== $season->id || $registration->team_id !== $team->id, 403);
+
+        $data = $request->validate([
+            'left_at' => 'nullable|date',
+        ]);
+
+        $registration->update(['left_at' => $data['left_at']]);
 
         return back();
     }

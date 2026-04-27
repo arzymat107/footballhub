@@ -14,6 +14,8 @@ const props = defineProps<{
     registrations: {
         id: number;
         shirt_number: number | null;
+        joined_at: string | null;
+        left_at: string | null;
         player: { id: number; name: string; position: string; nationality: string | null };
     }[];
     availablePlayers: { id: number; name: string; position: string }[];
@@ -28,9 +30,11 @@ const positionBadge: Record<string, string> = {
     forward: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
 };
 
-const addForm = useForm({ player_id: '', shirt_number: '' });
+const addForm = useForm({ player_id: '', shirt_number: '', joined_at: '' });
 const search = ref('');
 const selectedPlayer = ref<{ id: number; name: string; position: string } | null>(null);
+const departureEditId = ref<number | null>(null);
+const departureDate = ref('');
 
 const filteredPlayers = computed(() => {
     const q = search.value.toLowerCase().trim();
@@ -61,6 +65,19 @@ function addPlayer() {
             selectedPlayer.value = null;
         },
     });
+}
+
+function openDepartureEdit(reg: { id: number; left_at: string | null }) {
+    departureEditId.value = reg.id;
+    departureDate.value = reg.left_at ?? '';
+}
+
+function saveDeparture(registrationId: number) {
+    router.patch(
+        `/admin/seasons/${props.season.id}/teams/${props.team.id}/players/${registrationId}`,
+        { left_at: departureDate.value || null },
+        { onSuccess: () => { departureEditId.value = null; } },
+    );
 }
 
 function removePlayer(registrationId: number) {
@@ -102,7 +119,8 @@ function removePlayer(registrationId: number) {
                             <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400 w-12">#</th>
                             <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400">Name</th>
                             <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400">Position</th>
-                            <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400 hidden sm:table-cell">Nationality</th>
+                            <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400 hidden sm:table-cell">Joined</th>
+                            <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400 hidden sm:table-cell">Departed</th>
                             <th class="px-4 py-3 w-12"></th>
                         </tr>
                     </thead>
@@ -110,7 +128,7 @@ function removePlayer(registrationId: number) {
                         <tr
                             v-for="reg in registrations"
                             :key="reg.id"
-                            class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                            :class="['transition-colors', reg.left_at ? 'opacity-50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40']"
                         >
                             <td class="px-4 py-3 text-slate-400 dark:text-slate-500">{{ reg.shirt_number ?? '—' }}</td>
                             <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ reg.player.name }}</td>
@@ -119,7 +137,30 @@ function removePlayer(registrationId: number) {
                                     {{ reg.player.position }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">{{ reg.player.nationality ?? '—' }}</td>
+                            <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell text-sm">
+                                {{ reg.joined_at ?? '—' }}
+                            </td>
+                            <td class="px-4 py-3 hidden sm:table-cell text-sm">
+                                <template v-if="departureEditId === reg.id">
+                                    <div class="flex items-center gap-1">
+                                        <input
+                                            v-model="departureDate"
+                                            type="date"
+                                            class="px-2 py-1 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                        />
+                                        <button @click="saveDeparture(reg.id)" class="text-xs px-2 py-1 rounded bg-emerald-600 text-white hover:bg-emerald-700">Save</button>
+                                        <button @click="departureEditId = null" class="text-xs px-2 py-1 rounded text-slate-400 hover:text-slate-600">Cancel</button>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <button
+                                        @click="openDepartureEdit(reg)"
+                                        class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                    >
+                                        {{ reg.left_at ?? 'Set departure' }}
+                                    </button>
+                                </template>
+                            </td>
                             <td class="px-4 py-3">
                                 <button
                                     @click="removePlayer(reg.id)"
@@ -130,7 +171,7 @@ function removePlayer(registrationId: number) {
                             </td>
                         </tr>
                         <tr v-if="registrations.length === 0">
-                            <td colspan="5" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">No players registered yet</td>
+                            <td colspan="6" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">No players registered yet</td>
                         </tr>
                     </tbody>
                 </table>
@@ -173,6 +214,12 @@ function removePlayer(registrationId: number) {
                     max="99"
                     placeholder="#"
                     class="w-16 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                />
+                <input
+                    v-model="addForm.joined_at"
+                    type="date"
+                    title="Join date (optional)"
+                    class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
                 />
                 <button
                     @click="addPlayer"
