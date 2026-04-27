@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { ChevronRight, Plus, Trash2, UserCheck } from 'lucide-vue-next';
+import { Plus, Trash2, UserCheck } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 
 const props = defineProps<{
     season: {
         id: number; name: string;
-        division: { name: string; league: { name: string } };
+        division: { id: number; name: string; league: { id: number; name: string } };
         teams: { id: number; name: string }[];
         track_players: boolean;
     };
@@ -85,11 +85,17 @@ const positionBadge: Record<string, string> = {
 
     <div class="p-6 space-y-5 max-w-3xl">
         <!-- Breadcrumb -->
-        <nav class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-            <Link href="/admin/seasons" class="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Seasons</Link>
-            <ChevronRight class="size-4" />
-            <span class="text-slate-900 dark:text-slate-100">{{ season.name }} — Squad</span>
-        </nav>
+        <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 flex-wrap">
+            <Link href="/admin/leagues" class="hover:text-slate-700 dark:hover:text-slate-300">Leagues</Link>
+            <span>/</span>
+            <Link :href="`/admin/leagues/${season.division.league.id}`" class="hover:text-slate-700 dark:hover:text-slate-300">{{ season.division.league.name }}</Link>
+            <span>/</span>
+            <Link :href="`/admin/divisions/${season.division.id}`" class="hover:text-slate-700 dark:hover:text-slate-300">{{ season.division.name }}</Link>
+            <span>/</span>
+            <Link :href="`/admin/seasons/${season.id}`" class="hover:text-slate-700 dark:hover:text-slate-300">{{ season.name }}</Link>
+            <span>/</span>
+            <span class="text-slate-900 dark:text-slate-100">Squad</span>
+        </div>
 
         <div>
             <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100">
