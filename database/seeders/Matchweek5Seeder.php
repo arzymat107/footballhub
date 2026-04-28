@@ -8,14 +8,14 @@ use App\Models\FixtureLineup;
 use App\Models\Round;
 use Illuminate\Database\Seeder;
 
-// Суперлига 2024-25 — Matchday 5 (17–19 October 2024)
+// Суперлига 2024-25 — Matchweek 5 (17–19 October 2024)
 // Source: futsal_kgz Instagram posts
-class Matchday5Seeder extends Seeder
+class Matchweek5Seeder extends Seeder
 {
     public function run(): void
     {
         $round = Round::firstOrCreate(
-            ['stage_id' => 1, 'name' => 'Matchday 5'],
+            ['stage_id' => 1, 'name' => 'Matchweek 5'],
             ['order' => 5],
         );
 
