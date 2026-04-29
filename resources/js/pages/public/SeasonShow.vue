@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { ChevronRight, Trophy, Calendar, Users } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
+import { useHashTab } from '@/composables/useHashTab';
 
 type PlayerStat = {
     player: { id: number; name: string; position: string | null };
@@ -46,13 +47,13 @@ const tabs = computed(() => {
     return t;
 });
 
-const tab = ref<string>('standings');
+const tab = useHashTab('standings', ['standings', 'fixtures', 'results', 'players']);
 
 const upcoming = computed(() =>
     props.fixtures.filter(f => f.status === 'scheduled').slice(0, 10)
 );
 const results = computed(() =>
-    props.fixtures.filter(f => f.status === 'completed').reverse().slice(0, 20)
+    props.fixtures.filter(f => f.status === 'completed').reverse()
 );
 
 const topScorers = computed(() =>
@@ -64,7 +65,7 @@ const topCards = computed(() =>
         .filter(p => p.yellow_cards > 0 || p.red_cards > 0)
 );
 const topMvps = computed(() =>
-    [...props.playerStats].sort((a, b) => b.mvp - a.mvp).filter(p => p.mvp > 0).slice(0, 10)
+    [...props.playerStats].sort((a, b) => b.mvp - a.mvp).filter(p => p.mvp > 0)
 );
 
 const playerTab = ref<'scorers' | 'cards' | 'mvp'>('scorers');
@@ -158,7 +159,11 @@ const positionBadge: Record<string, string> = {
                                 class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                             >
                                 <td class="px-4 py-3 text-slate-400 text-center font-medium">{{ i + 1 }}</td>
-                                <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ row.team.name }}</td>
+                                <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
+                                    <Link :href="`/seasons/${season.id}/teams/${row.team.id}`" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                        {{ row.team.name }}
+                                    </Link>
+                                </td>
                                 <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ row.played }}</td>
                                 <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ row.won }}</td>
                                 <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ row.drawn }}</td>
@@ -198,7 +203,7 @@ const positionBadge: Record<string, string> = {
                             </span>
                         </div>
                         <div v-if="fixture.scheduled_at" class="text-center text-xs text-slate-400 mt-0.5">
-                            {{ formatDate(fixture.scheduled_at) }}
+                            {{ formatDate(fixture.scheduled_at) }} · {{ formatTime(fixture.scheduled_at) }}
                         </div>
                     </div>
                 </template>
@@ -211,8 +216,9 @@ const positionBadge: Record<string, string> = {
             <div v-else class="space-y-2">
                 <template v-for="(group, round) in Object.groupBy(results, f => f.round?.name ?? 'Results')" :key="round">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide pt-2 px-1">{{ round }}</p>
-                    <div v-for="fixture in group" :key="fixture.id"
-                        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-3"
+                    <Link v-for="fixture in group" :key="fixture.id"
+                        :href="`/fixtures/${fixture.id}`"
+                        class="block bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-3 hover:border-emerald-400 dark:hover:border-emerald-600 transition-colors"
                     >
                         <div class="flex items-center gap-3">
                             <span class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1 text-right">
@@ -226,9 +232,9 @@ const positionBadge: Record<string, string> = {
                             </span>
                         </div>
                         <div v-if="fixture.scheduled_at" class="text-center text-xs text-slate-400 mt-0.5">
-                            {{ formatDate(fixture.scheduled_at) }}
+                            {{ formatDate(fixture.scheduled_at) }} · {{ formatTime(fixture.scheduled_at) }}
                         </div>
-                    </div>
+                    </Link>
                 </template>
             </div>
         </div>
