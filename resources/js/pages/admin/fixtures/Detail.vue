@@ -16,6 +16,7 @@ const props = defineProps<{
     fixture: {
         id: number; status: string; scheduled_at: string | null;
         home_score: number | null; away_score: number | null;
+        home_score_pen: number | null; away_score_pen: number | null;
         home_team: { id: number; name: string };
         away_team: { id: number; name: string };
         season: { id: number; name: string };
@@ -236,9 +237,15 @@ const eventIcon: Record<string, string> = {
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
             <div class="flex items-center justify-between gap-4">
                 <span class="font-bold text-slate-900 dark:text-slate-100 flex-1 text-right">{{ fixture.home_team.name }}</span>
-                <span class="text-xl font-bold tabular-nums px-4 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-900 dark:text-slate-100">
-                    {{ fixture.home_score ?? '—' }} : {{ fixture.away_score ?? '—' }}
-                </span>
+                <div class="flex flex-col items-center">
+                    <span class="text-xl font-bold tabular-nums px-4 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-900 dark:text-slate-100">
+                        {{ fixture.home_score ?? '—' }} : {{ fixture.away_score ?? '—' }}
+                    </span>
+                    <span v-if="fixture.home_score_pen !== null && fixture.away_score_pen !== null"
+                        class="text-xs text-slate-400 mt-0.5 tabular-nums">
+                        pen {{ fixture.home_score_pen }}–{{ fixture.away_score_pen }}
+                    </span>
+                </div>
                 <span class="font-bold text-slate-900 dark:text-slate-100 flex-1">{{ fixture.away_team.name }}</span>
             </div>
             <p class="text-center text-xs text-slate-400 mt-1.5">

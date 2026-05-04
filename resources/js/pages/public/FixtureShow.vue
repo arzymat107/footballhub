@@ -131,12 +131,18 @@ const statusStyle: Record<string, string> = {
                 >
                     {{ fixture.home_team.short_name ?? fixture.home_team.name }}
                 </Link>
-                <span class="text-base font-bold tabular-nums px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0 text-slate-900 dark:text-slate-100">
-                    <template v-if="fixture.status === 'completed'">
-                        {{ fixture.home_score }} : {{ fixture.away_score }}
-                    </template>
-                    <template v-else>vs</template>
-                </span>
+                <div class="flex flex-col items-center shrink-0">
+                    <span class="text-base font-bold tabular-nums px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-900 dark:text-slate-100">
+                        <template v-if="fixture.status === 'completed'">
+                            {{ fixture.home_score }} : {{ fixture.away_score }}
+                        </template>
+                        <template v-else>vs</template>
+                    </span>
+                    <span v-if="fixture.home_score_pen !== null && fixture.away_score_pen !== null"
+                        class="text-xs text-slate-400 mt-0.5 tabular-nums">
+                        pen {{ fixture.home_score_pen }}–{{ fixture.away_score_pen }}
+                    </span>
+                </div>
                 <Link :href="`/seasons/${fixture.season.id}/teams/${fixture.away_team.id}`"
                     class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >

@@ -8,6 +8,7 @@ const props = defineProps<{
         data: {
             id: number; status: string; scheduled_at: string | null;
             home_score: number | null; away_score: number | null;
+            home_score_pen: number | null; away_score_pen: number | null;
             home_team: { id: number; name: string; short_name: string | null };
             away_team: { id: number; name: string; short_name: string | null };
             season: { id: number; name: string; division: { league: { name: string } } };
@@ -96,9 +97,15 @@ function formatDate(val: string | null) {
                                     <span class="font-medium text-slate-900 dark:text-slate-100">
                                         {{ fixture.home_team.short_name ?? fixture.home_team.name }}
                                     </span>
-                                    <span class="text-xs font-bold px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-700 dark:text-slate-300 tabular-nums">
-                                        {{ fixture.home_score ?? '—' }} : {{ fixture.away_score ?? '—' }}
-                                    </span>
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-xs font-bold px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-700 dark:text-slate-300 tabular-nums">
+                                            {{ fixture.home_score ?? '—' }} : {{ fixture.away_score ?? '—' }}
+                                        </span>
+                                        <span v-if="fixture.home_score_pen !== null && fixture.away_score_pen !== null"
+                                            class="text-xs text-slate-400 tabular-nums leading-none mt-0.5">
+                                            pen {{ fixture.home_score_pen }}–{{ fixture.away_score_pen }}
+                                        </span>
+                                    </div>
                                     <span class="font-medium text-slate-900 dark:text-slate-100">
                                         {{ fixture.away_team.short_name ?? fixture.away_team.name }}
                                     </span>

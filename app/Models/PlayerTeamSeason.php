@@ -10,8 +10,8 @@ class PlayerTeamSeason extends Model
     protected $fillable = ['player_id', 'team_id', 'season_id', 'shirt_number', 'joined_at', 'left_at'];
 
     protected $casts = [
-        'joined_at' => 'date',
-        'left_at' => 'date',
+        'joined_at' => 'date:Y-m-d',
+        'left_at'   => 'date:Y-m-d',
     ];
 
     public function player(): BelongsTo
