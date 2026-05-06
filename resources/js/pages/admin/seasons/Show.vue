@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Plus, Pencil, Trash2, Users, X } from 'lucide-vue-next';
@@ -35,14 +35,43 @@ const props = defineProps<{
 defineOptions({ layout: AdminLayout });
 
 const attachedIds = computed(() => new Set(props.season.teams.map((t) => t.id)));
-const availableTeams = computed(() => props.allTeams.filter((t) => !attachedIds.value.has(t.id)));
 
-const attachForm = useForm({ team_id: '' });
+// Team search
+const teamSearch = ref('');
+const showDropdown = ref(false);
+const teamForm = useForm({ team_id: '' as string | number, name: '' });
 
-function attachTeam() {
-    if (!attachForm.team_id) return;
-    attachForm.post(`/admin/seasons/${props.season.id}/teams`, {
-        onSuccess: () => { attachForm.reset(); },
+const filteredTeams = computed(() => {
+    const q = teamSearch.value.toLowerCase().trim();
+    if (!q) return [];
+    return props.allTeams
+        .filter((t) => !attachedIds.value.has(t.id) && t.name.toLowerCase().includes(q))
+        .slice(0, 8);
+});
+
+const nameExistsInDb = computed(() => {
+    const q = teamSearch.value.trim().toLowerCase();
+    return q ? props.allTeams.some((t) => t.name.toLowerCase() === q) : false;
+});
+
+const nameAlreadyAttached = computed(() => {
+    const q = teamSearch.value.trim().toLowerCase();
+    return q ? props.season.teams.some((t) => t.name.toLowerCase() === q) : false;
+});
+
+const showCreateOption = computed(() => teamSearch.value.trim().length > 0 && !nameExistsInDb.value);
+
+function selectTeam(team: { id: number; name: string }) {
+    teamForm.team_id = team.id;
+    teamForm.post(`/admin/seasons/${props.season.id}/teams`, {
+        onSuccess: () => { teamSearch.value = ''; showDropdown.value = false; teamForm.reset(); },
+    });
+}
+
+function createAndAttach() {
+    teamForm.name = teamSearch.value.trim();
+    teamForm.post(`/admin/seasons/${props.season.id}/quick-team`, {
+        onSuccess: () => { teamSearch.value = ''; showDropdown.value = false; teamForm.reset(); },
     });
 }
 
@@ -197,7 +226,54 @@ function destroyStage(id: number) {
                 Teams <span class="text-sm font-normal text-slate-400">({{ season.teams.length }})</span>
             </h2>
 
-            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                <!-- Attach form -->
+                <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                    <div class="relative">
+                        <input
+                            v-model="teamSearch"
+                            type="text"
+                            placeholder="Search or create team…"
+                            class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                            @input="showDropdown = true"
+                            @focus="showDropdown = true"
+                            @blur="setTimeout(() => showDropdown = false, 150)"
+                        />
+                        <ul
+                            v-if="showDropdown && teamSearch.trim().length > 0"
+                            class="absolute z-10 mt-1 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-56 overflow-y-auto"
+                        >
+                            <li
+                                v-for="team in filteredTeams"
+                                :key="team.id"
+                                @mousedown.prevent="selectTeam(team)"
+                                class="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
+                            >
+                                {{ team.name }}
+                            </li>
+                            <li
+                                v-if="nameAlreadyAttached"
+                                class="px-3 py-2 text-sm text-slate-400 dark:text-slate-500 italic"
+                            >
+                                Already in season
+                            </li>
+                            <li
+                                v-else-if="showCreateOption"
+                                @mousedown.prevent="createAndAttach"
+                                class="px-3 py-2 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 cursor-pointer font-medium transition-colors"
+                            >
+                                Create "{{ teamSearch.trim() }}"
+                            </li>
+                            <li
+                                v-else-if="filteredTeams.length === 0 && !nameAlreadyAttached"
+                                class="px-3 py-2 text-sm text-slate-400 dark:text-slate-500"
+                            >
+                                No teams found
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
                 <div v-if="season.teams.length > 0" class="divide-y divide-slate-100 dark:divide-slate-800">
                     <div
                         v-for="team in season.teams"
@@ -215,24 +291,6 @@ function destroyStage(id: number) {
                     </div>
                 </div>
                 <p v-else class="px-4 py-6 text-sm text-center text-slate-400 dark:text-slate-500">No teams added yet</p>
-
-                <!-- Attach form -->
-                <div class="border-t border-slate-100 dark:border-slate-800 px-4 py-3 flex gap-2">
-                    <select
-                        v-model="attachForm.team_id"
-                        class="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
-                    >
-                        <option value="">Add a team…</option>
-                        <option v-for="team in availableTeams" :key="team.id" :value="team.id">{{ team.name }}</option>
-                    </select>
-                    <button
-                        @click="attachTeam"
-                        :disabled="!attachForm.team_id || attachForm.processing"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors"
-                    >
-                        <Plus class="size-4" /> Add
-                    </button>
-                </div>
             </div>
         </div>
     </div>

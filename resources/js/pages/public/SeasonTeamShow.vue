@@ -69,7 +69,7 @@ const positionBadge: Record<string, string> = {
 
 function formatDate(val: string | null) {
     if (!val) return null;
-    return new Date(val).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    return new Date(val).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function formatTime(val: string | null) {
@@ -77,13 +77,7 @@ function formatTime(val: string | null) {
     return new Date(val).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
-function isHome(fixture: typeof props.fixtures[0]) {
-    return fixture.home_team.id === props.team.id;
-}
 
-function opponent(fixture: typeof props.fixtures[0]) {
-    return isHome(fixture) ? fixture.away_team : fixture.home_team;
-}
 </script>
 
 <template>
@@ -151,19 +145,19 @@ function opponent(fixture: typeof props.fixtures[0]) {
                         class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-3"
                     >
                         <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400 w-8 shrink-0 text-center">
-                                {{ isHome(fixture) ? 'H' : 'A' }}
-                            </span>
-                            <span class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1">
-                                {{ opponent(fixture).short_name ?? opponent(fixture).name }}
+                            <span class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1 text-right">
+                                {{ fixture.home_team.short_name ?? fixture.home_team.name }}
                             </span>
                             <div class="flex flex-col items-center shrink-0">
                                 <span class="text-xs font-semibold text-slate-400">vs</span>
                                 <span v-if="fixture.scheduled_at" class="text-xs text-slate-400">{{ formatTime(fixture.scheduled_at) }}</span>
                             </div>
+                            <span class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1">
+                                {{ fixture.away_team.short_name ?? fixture.away_team.name }}
+                            </span>
                         </div>
                         <div v-if="fixture.scheduled_at" class="text-center text-xs text-slate-400 mt-0.5">
-                            {{ formatDate(fixture.scheduled_at) }}
+                            {{ formatDate(fixture.scheduled_at) }} · {{ formatTime(fixture.scheduled_at) }}
                         </div>
                     </div>
                 </template>
@@ -198,7 +192,7 @@ function opponent(fixture: typeof props.fixtures[0]) {
                             </span>
                         </div>
                         <div v-if="fixture.scheduled_at" class="text-center text-xs text-slate-400 mt-0.5">
-                            {{ formatDate(fixture.scheduled_at) }}
+                            {{ formatDate(fixture.scheduled_at) }} · {{ formatTime(fixture.scheduled_at) }}
                         </div>
                     </Link>
                 </template>

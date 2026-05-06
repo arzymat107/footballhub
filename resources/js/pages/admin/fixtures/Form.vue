@@ -11,7 +11,7 @@ type EventEntry = { id: number; type: string; minute: number; player: { id: numb
 
 const props = defineProps<{
     seasons: { id: number; name: string }[];
-    teams: { id: number; name: string }[];
+    seasonTeams: Record<number, { id: number; name: string }[]>;
     rounds: { id: number; name: string; stage_id: number }[];
     roundId?: number | null;
     seasonId?: number | null;
@@ -49,6 +49,8 @@ const form = useForm({
     away_score: props.fixture?.away_score ?? '',
 });
 
+const availableTeams = computed(() => props.seasonTeams[Number(form.season_id)] ?? []);
+
 function submit() {
     if (props.fixture) {
         form.put(`/admin/fixtures/${props.fixture.id}`);
@@ -59,8 +61,8 @@ function submit() {
 
 // ── Lineup / Events (only shown when editing a completed fixture) ──────────
 
-const showMatchDetails = computed(() => !!props.fixture && props.fixture.status === 'completed');
-const tab = ref<'lineup' | 'events'>('lineup');
+const showMatchDetails = computed(() => !!props.fixture);
+const tab = ref<'lineup' | 'events'>('events');
 const lineupTeam = ref<number>(props.fixture?.home_team_id ?? 0);
 
 // Player search with quick-create
@@ -280,7 +282,7 @@ const eventIcon: Record<string, string> = { goal: '⚽', own_goal: '🔴', yello
                     <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Home team *</label>
                     <select v-model="form.home_team_id" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
                         <option value="">Select team…</option>
-                        <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
+                        <option v-for="t in availableTeams" :key="t.id" :value="t.id">{{ t.name }}</option>
                     </select>
                     <InputError :message="form.errors.home_team_id" />
                 </div>
@@ -289,7 +291,7 @@ const eventIcon: Record<string, string> = { goal: '⚽', own_goal: '🔴', yello
                     <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Away team *</label>
                     <select v-model="form.away_team_id" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
                         <option value="">Select team…</option>
-                        <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
+                        <option v-for="t in availableTeams" :key="t.id" :value="t.id">{{ t.name }}</option>
                     </select>
                     <InputError :message="form.errors.away_team_id" />
                 </div>
@@ -345,7 +347,7 @@ const eventIcon: Record<string, string> = { goal: '⚽', own_goal: '🔴', yello
                 <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Match details</h2>
                 <div class="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1 ml-auto">
                     <button
-                        v-for="t in [{ key: 'lineup', label: 'Lineup' }, { key: 'events', label: 'Events' }]"
+                        v-for="t in [{ key: 'events', label: 'Events' }, { key: 'lineup', label: 'Lineup' }]"
                         :key="t.key"
                         @click="tab = t.key as any"
                         :class="['px-4 py-1 rounded-md text-sm font-medium transition-colors', tab === t.key ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700']"

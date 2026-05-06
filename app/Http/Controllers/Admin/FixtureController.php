@@ -10,7 +10,6 @@ use App\Models\Player;
 use App\Models\PlayerTeamSeason;
 use App\Models\Round;
 use App\Models\Season;
-use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -46,7 +45,7 @@ class FixtureController extends Controller
 
         return Inertia::render('admin/fixtures/Form', [
             'seasons' => Season::with('division.league')->orderByDesc('start_date')->get(['id', 'name', 'division_id']),
-            'teams' => Team::orderBy('name')->get(['id', 'name']),
+            'seasonTeams' => Season::with('teams:id,name')->get(['id'])->mapWithKeys(fn ($s) => [$s->id => $s->teams->map->only(['id', 'name'])->values()]),
             'rounds' => Round::orderBy('name')->get(['id', 'name', 'stage_id']),
             'roundId' => $round?->id,
             'seasonId' => $round?->stage->season->id,
@@ -123,9 +122,11 @@ class FixtureController extends Controller
             ->get();
 
         return Inertia::render('admin/fixtures/Form', [
-            'fixture' => $fixture,
+            'fixture' => array_merge($fixture->toArray(), [
+                'scheduled_at' => $fixture->scheduled_at?->setTimezone(config('app.timezone'))->format('Y-m-d\TH:i'),
+            ]),
             'seasons' => Season::with('division.league')->orderByDesc('start_date')->get(['id', 'name', 'division_id']),
-            'teams' => Team::orderBy('name')->get(['id', 'name']),
+            'seasonTeams' => Season::with('teams:id,name')->get(['id'])->mapWithKeys(fn ($s) => [$s->id => $s->teams->map->only(['id', 'name'])->values()]),
             'rounds' => Round::orderBy('name')->get(['id', 'name', 'stage_id']),
             'roundId' => null,
             'seasonId' => null,
@@ -157,13 +158,12 @@ class FixtureController extends Controller
         $data = $request->validate([
             'team_id' => 'required|in:' . $fixture->home_team_id . ',' . $fixture->away_team_id,
             'name' => 'required|string|max:255',
-            'position' => 'required|in:goalkeeper,defender,midfielder,forward',
+            'event_type' => 'nullable|in:goal,own_goal,yellow_card,red_card',
+            'event_team_id' => 'nullable|in:' . $fixture->home_team_id . ',' . $fixture->away_team_id,
+            'event_minute' => 'nullable|integer|min:1|max:120',
         ]);
 
-        $player = Player::create([
-            'name' => $data['name'],
-            'position' => $data['position'],
-        ]);
+        $player = Player::create(['name' => $data['name']]);
 
         PlayerTeamSeason::firstOrCreate([
             'player_id' => $player->id,
@@ -171,7 +171,17 @@ class FixtureController extends Controller
             'season_id' => $fixture->season_id,
         ]);
 
-        return back()->with('newPlayerId', $player->id);
+        if (!empty($data['event_type'])) {
+            Event::create([
+                'fixture_id' => $fixture->id,
+                'team_id' => $data['event_team_id'] ?? $data['team_id'],
+                'player_id' => $player->id,
+                'type' => $data['event_type'],
+                'minute' => $data['event_minute'] ?? null,
+            ]);
+        }
+
+        return back();
     }
 
     public function update(Request $request, Fixture $fixture): RedirectResponse

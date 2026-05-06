@@ -15,6 +15,7 @@ Route::prefix('admin')
         Route::resource('players', Admin\PlayerController::class);
         Route::resource('seasons', Admin\SeasonController::class);
         Route::post('seasons/{season}/teams', [Admin\SeasonController::class, 'attachTeam'])->name('seasons.teams.attach');
+        Route::post('seasons/{season}/quick-team', [Admin\SeasonController::class, 'quickCreateTeam'])->name('seasons.quick-team');
         Route::delete('seasons/{season}/teams/{team}', [Admin\SeasonController::class, 'detachTeam'])->name('seasons.teams.detach');
         Route::get('seasons/{season}/teams/{team}', [Admin\SeasonTeamController::class, 'show'])->name('seasons.teams.show');
         Route::post('seasons/{season}/teams/{team}/players', [Admin\SeasonTeamController::class, 'store'])->name('seasons.teams.players.store');

@@ -7,20 +7,20 @@ import { ref, computed, watch } from 'vue';
 type Player = { id: number; name: string; position: string };
 type LineupEntry = { id: number; is_mvp: boolean; player: { id: number; name: string } };
 type EventEntry = {
-    id: number; type: string; minute: number;
+    id: number; type: string; minute: number | null;
     player: { id: number; name: string };
     team: { id: number; name: string };
 };
 
 const props = defineProps<{
     fixture: {
-        id: number; status: string; scheduled_at: string | null;
+        id: number; status: string; scheduled_at: string | null; venue: string | null;
         home_score: number | null; away_score: number | null;
         home_score_pen: number | null; away_score_pen: number | null;
         home_team: { id: number; name: string };
         away_team: { id: number; name: string };
-        season: { id: number; name: string };
-        round: { name: string } | null;
+        season: { id: number; name: string; division: { id: number; name: string; league: { id: number; name: string } } };
+        round: { id: number; name: string } | null;
     };
     seasonPlayers: Record<number, Player[]>;
     allPlayers: Player[];
@@ -30,7 +30,7 @@ const props = defineProps<{
 
 defineOptions({ layout: AdminLayout });
 
-const tab = ref<'lineup' | 'events'>('lineup');
+const tab = ref<'lineup' | 'events'>('events');
 const lineupTeam = ref<number>(props.fixture.home_team.id);
 
 // ── Lineup player search ──────────────────────────────────────────────────────
@@ -140,7 +140,7 @@ const showEventCreateForm = ref(false);
 const selectedEventPlayer = ref<Player | null>(null);
 const selectedEventPlayerIsExternal = ref(false);
 
-const quickEventForm = useForm({ name: '', position: 'forward', team_id: eventForm.team_id as number | '' });
+const quickEventForm = useForm({ name: '', team_id: eventForm.team_id as number | '', event_type: '', event_team_id: '' as number | '', event_minute: '' as number | '' });
 const attachEventForm = useForm({ player_id: '' as number | '', team_id: '' as number | '' });
 
 const filteredEventSquadPlayers = computed(() => {
@@ -185,11 +185,16 @@ watch(() => eventForm.team_id, () => {
 
 function submitQuickEventPlayer() {
     quickEventForm.team_id = eventForm.team_id as number | '';
+    quickEventForm.event_type = eventForm.type;
+    quickEventForm.event_team_id = eventForm.team_id as number | '';
+    quickEventForm.event_minute = eventForm.minute;
     quickEventForm.post(`/admin/fixtures/${props.fixture.id}/quick-player`, {
         onSuccess: () => {
             quickEventForm.reset('name');
             showEventCreateForm.value = false;
             eventSearch.value = '';
+            eventForm.reset('player_id', 'minute');
+            selectedEventPlayer.value = null;
         },
     });
 }
@@ -227,10 +232,20 @@ const eventIcon: Record<string, string> = {
 
     <div class="p-6 space-y-5 max-w-3xl">
         <!-- Breadcrumb -->
-        <nav class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-            <Link href="/admin/fixtures" class="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Fixtures</Link>
-            <ChevronRight class="size-4" />
-            <span class="text-slate-900 dark:text-slate-100">Lineup & Events</span>
+        <nav class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 flex-wrap">
+            <Link href="/admin/leagues" class="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Leagues</Link>
+            <ChevronRight class="size-4 shrink-0" />
+            <Link :href="`/admin/leagues/${fixture.season.division.league.id}`" class="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">{{ fixture.season.division.league.name }}</Link>
+            <ChevronRight class="size-4 shrink-0" />
+            <Link :href="`/admin/divisions/${fixture.season.division.id}`" class="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">{{ fixture.season.division.name }}</Link>
+            <ChevronRight class="size-4 shrink-0" />
+            <Link :href="`/admin/seasons/${fixture.season.id}`" class="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">{{ fixture.season.name }}</Link>
+            <template v-if="fixture.round">
+                <ChevronRight class="size-4 shrink-0" />
+                <Link :href="`/admin/rounds/${fixture.round.id}`" class="hover:text-slate-700 dark:hover:text-slate-200 transition-colors">{{ fixture.round.name }}</Link>
+            </template>
+            <ChevronRight class="size-4 shrink-0" />
+            <span class="text-slate-900 dark:text-slate-100">{{ fixture.home_team.name }} vs {{ fixture.away_team.name }}</span>
         </nav>
 
         <!-- Match header -->
@@ -251,12 +266,17 @@ const eventIcon: Record<string, string> = {
             <p class="text-center text-xs text-slate-400 mt-1.5">
                 {{ fixture.season.name }}{{ fixture.round ? ` · ${fixture.round.name}` : '' }}
             </p>
+            <p v-if="fixture.scheduled_at" class="text-center text-xs text-slate-400 mt-0.5">
+                {{ new Date(fixture.scheduled_at).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }}
+                · {{ new Date(fixture.scheduled_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) }}
+            </p>
+            <p v-if="fixture.venue" class="text-center text-xs text-slate-400 mt-0.5">{{ fixture.venue }}</p>
         </div>
 
         <!-- Tabs -->
         <div class="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 w-fit">
             <button
-                v-for="t in [{ key: 'lineup', label: 'Lineup' }, { key: 'events', label: 'Events' }]"
+                v-for="t in [{ key: 'events', label: 'Events' }, { key: 'lineup', label: 'Lineup' }]"
                 :key="t.key"
                 @click="tab = t.key as any"
                 :class="[
@@ -459,20 +479,11 @@ const eventIcon: Record<string, string> = {
                         <label class="text-xs font-medium text-slate-500">Name</label>
                         <input v-model="quickEventForm.name" type="text" placeholder="Player name" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" />
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-medium text-slate-500">Position</label>
-                        <select v-model="quickEventForm.position" class="px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
-                            <option value="goalkeeper">Goalkeeper</option>
-                            <option value="defender">Defender</option>
-                            <option value="midfielder">Midfielder</option>
-                            <option value="forward">Forward</option>
-                        </select>
-                    </div>
                     <button @click="submitQuickEventPlayer" :disabled="!quickEventForm.name || quickEventForm.processing" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors">Create</button>
                     <button @click="showEventCreateForm = false" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"><X class="size-4" /></button>
                 </div>
 
-                <button @click="addEvent" :disabled="!eventForm.player_id || !eventForm.minute || eventForm.processing" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors">
+                <button @click="addEvent" :disabled="!eventForm.player_id || eventForm.processing" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors">
                     <Plus class="size-4" /> Add event
                 </button>
             </div>
@@ -489,7 +500,7 @@ const eventIcon: Record<string, string> = {
                         class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                     >
                         <span class="text-base w-6 text-center shrink-0">{{ eventIcon[event.type] ?? '•' }}</span>
-                        <span class="text-xs font-mono text-slate-400 w-8 shrink-0">{{ event.minute }}'</span>
+                        <span class="text-xs font-mono text-slate-400 w-8 shrink-0">{{ event.minute != null ? `${event.minute}'` : '—' }}</span>
                         <span class="flex-1 text-sm font-medium text-slate-900 dark:text-slate-100">{{ event.player.name }}</span>
                         <span class="text-xs text-slate-400">{{ event.team.name }}</span>
                         <button @click="removeEvent(event.id)" class="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">

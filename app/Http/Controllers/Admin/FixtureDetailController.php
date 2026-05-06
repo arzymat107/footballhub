@@ -17,7 +17,7 @@ class FixtureDetailController extends Controller
 {
     public function show(Fixture $fixture): Response
     {
-        $fixture->load(['homeTeam', 'awayTeam', 'season', 'round']);
+        $fixture->load(['homeTeam', 'awayTeam', 'season.division.league', 'round']);
 
         $seasonPlayerRecords = PlayerTeamSeason::with('player')
             ->where('season_id', $fixture->season_id)
@@ -53,7 +53,9 @@ class FixtureDetailController extends Controller
             ->get();
 
         return Inertia::render('admin/fixtures/Detail', [
-            'fixture' => $fixture,
+            'fixture' => array_merge($fixture->toArray(), [
+                'scheduled_at' => $fixture->scheduled_at?->setTimezone(config('app.timezone'))->format('Y-m-d\TH:i'),
+            ]),
             'seasonPlayers' => $seasonPlayers,
             'allPlayers' => $allPlayers,
             'lineups' => $lineups,
@@ -91,7 +93,7 @@ class FixtureDetailController extends Controller
             'team_id' => 'required|in:' . $fixture->home_team_id . ',' . $fixture->away_team_id,
             'player_id' => 'required|exists:players,id',
             'type' => 'required|in:goal,own_goal,yellow_card,red_card',
-            'minute' => 'required|integer|min:1|max:120',
+            'minute' => 'nullable|integer|min:1|max:120',
         ]);
 
         Event::create(array_merge($data, ['fixture_id' => $fixture->id]));
