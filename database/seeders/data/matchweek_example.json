@@ -1,0 +1,90 @@
+{
+    "season_id": 2,
+    "stage_id": 4,
+    "round_name": "Matchweek 22",
+    "round_order": 22,
+    "matches": [
+        {
+            "home_team_id": 11,
+            "away_team_id": 5,
+            "venue": "СК КФБ, Бишкек",
+            "scheduled_at": "2026-04-18 18:00:00",
+            "status": "completed",
+            "home_score": 3,
+            "away_score": 4,
+            "lineup": [
+                { "player_id": 45,  "team_id": 11, "mvp": false },
+                { "player_id": 237, "team_id": 11, "mvp": false },
+                { "player_id": 394, "team_id": 11, "mvp": false },
+                { "player_id": 10,  "team_id": 11, "mvp": false },
+                { "player_name": "Султангазиев А", "team_id": 11, "mvp": false },
+                { "player_id": 257, "team_id": 11, "mvp": false },
+                { "player_id": 259, "team_id": 11, "mvp": false },
+                { "player_id": 235, "team_id": 11, "mvp": false },
+                { "player_id": 89,  "team_id": 11, "mvp": false },
+                { "player_id": 358, "team_id": 11, "mvp": false },
+                { "player_id": 392, "team_id": 5,  "mvp": true  },
+                { "player_id": 105, "team_id": 5,  "mvp": false },
+                { "player_id": 326, "team_id": 5,  "mvp": false },
+                { "player_name": "Шаршенбиев Ринат", "team_id": 5, "mvp": false },
+                { "player_id": 100, "team_id": 5,  "mvp": false },
+                { "player_id": 324, "team_id": 5,  "mvp": false },
+                { "player_id": 94,  "team_id": 5,  "mvp": false },
+                { "player_id": 98,  "team_id": 5,  "mvp": false }
+            ],
+            "events": [
+                { "type": "goal",     "team_id": 11, "player_id": 257,  "minute": 4  },
+                { "type": "own_goal", "team_id": 5,  "player_name": "Султангазиев А", "minute": 4 },
+                { "type": "goal",     "team_id": 5,  "player_id": 392,  "minute": 33 },
+                { "type": "goal",     "team_id": 11, "player_id": 237,  "minute": 37 },
+                { "type": "goal",     "team_id": 11, "player_id": 237,  "minute": 38 },
+                { "type": "goal",     "team_id": 5,  "player_id": 105,  "minute": 40 },
+                { "type": "goal",     "team_id": 5,  "player_id": 100,  "minute": 40 }
+            ]
+        },
+        {
+            "home_team_id": 1,
+            "away_team_id": 10,
+            "venue": "СК КФБ, Бишкек",
+            "scheduled_at": "2026-04-18 20:00:00",
+            "status": "completed",
+            "home_score": 2,
+            "away_score": 4,
+            "lineup": [
+                { "player_id": 285, "team_id": 1,  "mvp": false },
+                { "player_id": 139, "team_id": 1,  "mvp": false },
+                { "player_id": 11,  "team_id": 1,  "mvp": false },
+                { "player_id": 346, "team_id": 1,  "mvp": false },
+                { "player_id": 140, "team_id": 1,  "mvp": false },
+                { "player_id": 403, "team_id": 1,  "mvp": false },
+                { "player_id": 34,  "team_id": 1,  "mvp": false },
+                { "player_id": 12,  "team_id": 1,  "mvp": false },
+                { "player_id": 13,  "team_id": 1,  "mvp": false },
+                { "player_id": 345, "team_id": 1,  "mvp": false },
+                { "player_id": 349, "team_id": 1,  "mvp": false },
+                { "player_id": 399, "team_id": 1,  "mvp": false },
+                { "player_id": 401, "team_id": 1,  "mvp": false },
+                { "player_id": 402, "team_id": 1,  "mvp": false },
+                { "player_id": 212, "team_id": 10, "mvp": false },
+                { "player_id": 250, "team_id": 10, "mvp": false },
+                { "player_id": 150, "team_id": 10, "mvp": false },
+                { "player_id": 236, "team_id": 10, "mvp": false },
+                { "player_id": 16,  "team_id": 10, "mvp": true  },
+                { "player_id": 38,  "team_id": 10, "mvp": false },
+                { "player_id": 220, "team_id": 10, "mvp": false },
+                { "player_id": 219, "team_id": 10, "mvp": false },
+                { "player_id": 226, "team_id": 10, "mvp": false },
+                { "player_id": 227, "team_id": 10, "mvp": false },
+                { "player_id": 230, "team_id": 10, "mvp": false }
+            ],
+            "events": [
+                { "type": "goal", "team_id": 1,  "player_id": 11,  "minute": 1  },
+                { "type": "goal", "team_id": 10, "player_id": 250, "minute": 2  },
+                { "type": "goal", "team_id": 10, "player_id": 226, "minute": 12 },
+                { "type": "goal", "team_id": 10, "player_id": 16,  "minute": 31 },
+                { "type": "goal", "team_id": 1,  "player_id": 349, "minute": 11 },
+                { "type": "goal", "team_id": 10, "player_id": 212, "minute": 40 }
+            ]
+        }
+    ]
+}
