@@ -13,6 +13,7 @@ Read the corresponding league config file from `database/seeders/data/`:
 |--------|-------------|
 | Суперлига 2025-26 | `league_superliga_2025_26.md` |
 | Талас Лига 2026 жаз | `league_talasliga_2026_zhas.md` |
+| Байнур Лига 2026 жаз (Горизонт дивизион) | `league_baynur_liga_2026_zhas.md` |
 
 The config file contains: `season_id`, `stage_id`, `round_name` format, team IDs, and the squad JSON path.
 

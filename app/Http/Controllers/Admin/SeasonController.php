@@ -45,7 +45,7 @@ class SeasonController extends Controller
     public function quickCreateTeam(Request $request, Season $season): RedirectResponse
     {
         $data = $request->validate(['name' => 'required|string|max:255']);
-        $team = Team::firstOrCreate(['name' => $data['name']]);
+        $team = Team::create(['name' => $data['name']]);
         $season->teams()->syncWithoutDetaching([$team->id]);
 
         return back();

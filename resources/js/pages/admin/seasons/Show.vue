@@ -59,7 +59,7 @@ const nameAlreadyAttached = computed(() => {
     return q ? props.season.teams.some((t) => t.name.toLowerCase() === q) : false;
 });
 
-const showCreateOption = computed(() => teamSearch.value.trim().length > 0 && !nameExistsInDb.value);
+const showCreateOption = computed(() => teamSearch.value.trim().length > 0 && !nameAlreadyAttached.value);
 
 function selectTeam(team: { id: number; name: string }) {
     teamForm.team_id = team.id;
