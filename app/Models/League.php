@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class League extends Model
 {
-    protected $fillable = ['name', 'country', 'logo', 'description'];
+    protected $fillable = ['name', 'country', 'logo', 'description', 'display_order'];
 
     public function divisions(): HasMany
     {

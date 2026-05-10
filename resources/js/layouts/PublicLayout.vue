@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { Home, Trophy, Calendar, Menu, X, Shield } from 'lucide-vue-next';
+import { Info, Trophy, Calendar, Menu, X, Shield } from 'lucide-vue-next';
 
 const page = usePage();
 const auth = computed(() => page.props.auth as { user?: { name: string; is_admin?: boolean } } | null);
 const mobileMenuOpen = ref(false);
 
 const navLinks = [
-    { label: 'Home', href: '/', icon: Home },
-    { label: 'Leagues', href: '/leagues', icon: Trophy },
+    { label: 'Leagues', href: '/', icon: Trophy },
+    { label: 'About', href: '/about', icon: Info },
 ];
 </script>
 

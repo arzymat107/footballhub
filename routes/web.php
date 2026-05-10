@@ -7,11 +7,11 @@ use App\Http\Controllers\SeasonTeamController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::inertia('/', 'public/Home', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+Route::get('/', [LeagueController::class, 'index'])->name('home');
 
-Route::get('/leagues', [LeagueController::class, 'index'])->name('leagues.index');
+Route::inertia('/about', 'public/Home', [
+    'canRegister' => Features::enabled(Features::registration()),
+])->name('about');
 Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show');
 Route::get('/seasons/{season}', [SeasonController::class, 'show'])->name('seasons.show');
 Route::get('/seasons/{season}/teams/{team}', [SeasonTeamController::class, 'show'])->name('seasons.teams.show');

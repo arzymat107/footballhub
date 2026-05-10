@@ -74,7 +74,7 @@ const tabs = computed(() => {
 const tab = useHashTab('standings', ['standings', 'fixtures', 'results', 'players']);
 
 const upcoming = computed(() =>
-    props.fixtures.filter(f => f.status === 'scheduled').slice(0, 10)
+    props.fixtures.filter(f => f.status === 'scheduled')
 );
 const results = computed(() =>
     props.fixtures.filter(f => f.status === 'completed').reverse()
@@ -120,7 +120,7 @@ const positionBadge: Record<string, string> = {
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-6 flex-wrap">
-            <Link href="/leagues" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Leagues</Link>
+            <Link href="/" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Leagues</Link>
             <ChevronRight class="size-4" />
             <Link :href="`/leagues/${season.division.league.id}`" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 {{ season.division.league.name }}
@@ -175,7 +175,7 @@ const positionBadge: Record<string, string> = {
                             <table class="w-full text-sm">
                                 <thead class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                                     <tr>
-                                        <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400 w-8">#</th>
+                                        <th class="text-left px-1 sm:px-4 py-3 font-medium text-slate-500 dark:text-slate-400 w-6 sm:w-8">#</th>
                                         <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400">Team</th>
                                         <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">P</th>
                                         <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">W</th>
@@ -193,7 +193,7 @@ const positionBadge: Record<string, string> = {
                                         :key="row.team.id"
                                         class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                                     >
-                                        <td class="px-4 py-3 text-slate-400 text-center font-medium">{{ i + 1 }}</td>
+                                        <td class="px-1 sm:px-4 py-3 text-slate-400 text-center font-medium">{{ i + 1 }}</td>
                                         <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
                                             <Link :href="`/seasons/${season.id}/teams/${row.team.id}`" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                                                 {{ row.team.name }}
@@ -232,7 +232,7 @@ const positionBadge: Record<string, string> = {
                                 <table class="w-full text-sm">
                                     <thead class="border-b border-slate-100 dark:border-slate-800">
                                         <tr>
-                                            <th class="text-left px-4 py-2 font-medium text-slate-500 dark:text-slate-400 w-6">#</th>
+                                            <th class="text-left px-1 sm:px-4 py-2 font-medium text-slate-500 dark:text-slate-400 w-4 sm:w-6">#</th>
                                             <th class="text-left px-4 py-2 font-medium text-slate-500 dark:text-slate-400">Team</th>
                                             <th class="text-center px-2 py-2 font-medium text-slate-500 dark:text-slate-400">P</th>
                                             <th class="text-center px-2 py-2 font-medium text-slate-500 dark:text-slate-400">W</th>
@@ -246,7 +246,7 @@ const positionBadge: Record<string, string> = {
                                         <tr v-for="(row, i) in group.standings" :key="row.team.id"
                                             class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                                         >
-                                            <td class="px-4 py-2.5 text-slate-400 text-center font-medium">{{ i + 1 }}</td>
+                                            <td class="px-1 sm:px-4 py-2.5 text-slate-400 text-center font-medium">{{ i + 1 }}</td>
                                             <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-100">{{ row.team.name }}</td>
                                             <td class="px-2 py-2.5 text-center text-slate-500 dark:text-slate-400">{{ row.played }}</td>
                                             <td class="px-2 py-2.5 text-center text-slate-500 dark:text-slate-400">{{ row.won }}</td>

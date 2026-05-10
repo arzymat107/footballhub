@@ -33,7 +33,7 @@ const statusBadge: Record<string, string> = {
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-6">
-            <Link href="/leagues" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Leagues</Link>
+            <Link href="/" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Leagues</Link>
             <ChevronRight class="size-4" />
             <span class="text-slate-900 dark:text-slate-100">{{ league.name }}</span>
         </nav>

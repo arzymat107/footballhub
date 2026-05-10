@@ -86,7 +86,7 @@ function formatTime(val: string | null) {
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-6 flex-wrap">
-            <Link href="/leagues" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Leagues</Link>
+            <Link href="/" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Leagues</Link>
             <ChevronRight class="size-4" />
             <Link :href="`/leagues/${season.division.league.id}`" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 {{ season.division.league.name }}

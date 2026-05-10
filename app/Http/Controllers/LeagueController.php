@@ -11,6 +11,7 @@ class LeagueController extends Controller
     public function index(): Response
     {
         $leagues = League::withCount('divisions')
+            ->orderBy('display_order')
             ->orderBy('name')
             ->get();
 

@@ -25,7 +25,7 @@ defineOptions({ layout: PublicLayout });
                 Follow leagues, track standings, and stay on top of every fixture.
             </p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link href="/leagues" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-700 font-semibold hover:bg-emerald-50 transition-colors">
+                <Link href="/" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-700 font-semibold hover:bg-emerald-50 transition-colors">
                     <Trophy class="size-5" />
                     Browse leagues
                 </Link>
@@ -55,7 +55,7 @@ defineOptions({ layout: PublicLayout });
         <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-800 p-8 text-center">
             <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Ready to explore?</h2>
             <p class="text-slate-500 dark:text-slate-400 mb-5 text-sm">All leagues and fixtures are available publicly — no account needed.</p>
-            <Link href="/leagues" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors">
+            <Link href="/" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors">
                 View all leagues <ArrowRight class="size-4" />
             </Link>
         </div>

@@ -14,8 +14,6 @@ defineOptions({ layout: PublicLayout });
     <Head title="Leagues" />
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">All Leagues</h1>
-
         <div v-if="leagues.length === 0" class="text-center py-20 text-slate-500 dark:text-slate-400">
             No leagues available yet.
         </div>

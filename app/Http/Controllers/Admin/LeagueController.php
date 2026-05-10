@@ -14,6 +14,7 @@ class LeagueController extends Controller
     public function index(): Response
     {
         $leagues = League::withCount('divisions')
+            ->orderBy('display_order')
             ->orderBy('name')
             ->paginate(20);
 
@@ -42,6 +43,7 @@ class LeagueController extends Controller
             'name' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'display_order' => 'nullable|integer|min:0',
         ]);
 
         League::create($data);
@@ -62,6 +64,7 @@ class LeagueController extends Controller
             'name' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'display_order' => 'nullable|integer|min:0',
         ]);
 
         $league->update($data);

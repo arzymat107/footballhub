@@ -108,7 +108,7 @@ const statusStyle: Record<string, string> = {
     <div class="max-w-3xl mx-auto px-4 py-8 space-y-5">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 flex-wrap">
-            <Link href="/leagues" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Leagues</Link>
+            <Link href="/" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Leagues</Link>
             <ChevronRight class="size-4 shrink-0" />
             <Link :href="`/leagues/${fixture.season.division.league.id}`" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 {{ fixture.season.division.league.name }}

@@ -4,7 +4,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import InputError from '@/components/InputError.vue';
 
 const props = defineProps<{
-    league?: { id: number; name: string; country: string | null; description: string | null };
+    league?: { id: number; name: string; country: string | null; description: string | null; display_order: number };
 }>();
 
 defineOptions({ layout: AdminLayout });
@@ -13,6 +13,7 @@ const form = useForm({
     name: props.league?.name ?? '',
     country: props.league?.country ?? '',
     description: props.league?.description ?? '',
+    display_order: props.league?.display_order ?? 0,
 });
 
 function submit() {
@@ -55,6 +56,17 @@ function submit() {
                     placeholder="England"
                 />
                 <InputError :message="form.errors.country" />
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Display order</label>
+                <input
+                    v-model.number="form.display_order"
+                    type="number"
+                    min="0"
+                    class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                />
+                <InputError :message="form.errors.display_order" />
             </div>
 
             <div class="space-y-1.5">
