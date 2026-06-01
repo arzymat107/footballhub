@@ -75,6 +75,16 @@ Follow `matchweek_example.json` exactly. Key rules:
 
 Note: ТЕХ. ПОР. and ПЕРЕНОС results may appear directly on the schedule photo — no separate result card.
 
+**Deriving missing results from before/after standings photos:**
+
+When a match has no result card, use the GF:GA columns from the before and after standings tables:
+- `round_score_for_team = after_GF - before_GF`
+- `round_score_against_team = after_GA - before_GA`
+
+Example: before standings show Беш-Таш 37:42, after show 40:47 → scored 3, conceded 5 → result is 3:5 loss. Cross-check with opponent's numbers. Leave `"events": []` since no scorer data is available.
+
+If the standings only show GD (not GF:GA separately), you can only determine the margin — use a reasonable estimate and note it is approximate.
+
 **No goals photo** → `"events": []`
 
 **MVP** → `"mvp": true` on that player's lineup entry, one per match.
