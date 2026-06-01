@@ -39,14 +39,7 @@ const props = defineProps<{
 
 defineOptions({ layout: PublicLayout });
 
-const tab = useHashTab<'fixtures' | 'results' | 'squad'>('fixtures', ['fixtures', 'results', 'squad']);
-
-const upcoming = computed(() =>
-    props.fixtures.filter(f => f.status === 'scheduled')
-);
-const results = computed(() =>
-    props.fixtures.filter(f => f.status === 'completed').reverse()
-);
+const tab = useHashTab<'matches' | 'squad'>('matches', ['matches', 'squad']);
 
 const positionOrder: Record<string, number> = {
     goalkeeper: 0, defender: 1, midfielder: 2, forward: 3,
@@ -118,8 +111,7 @@ function formatTime(val: string | null) {
         <div class="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 w-fit mb-6 flex-wrap">
             <button
                 v-for="t in [
-                    { key: 'fixtures', label: 'Fixtures', icon: Calendar },
-                    { key: 'results', label: 'Results', icon: Calendar },
+                    { key: 'matches', label: 'Matches', icon: Calendar },
                     ...(trackPlayers ? [{ key: 'squad', label: 'Squad', icon: Users }] : []),
                 ]"
                 :key="t.key"
@@ -136,22 +128,40 @@ function formatTime(val: string | null) {
             </button>
         </div>
 
-        <!-- FIXTURES -->
-        <div v-if="tab === 'fixtures'">
-            <div v-if="upcoming.length === 0" class="text-center py-16 text-slate-500 dark:text-slate-400">No upcoming fixtures.</div>
+        <!-- MATCHES -->
+        <div v-if="tab === 'matches'">
+            <div v-if="fixtures.length === 0" class="text-center py-16 text-slate-500 dark:text-slate-400">No matches yet.</div>
             <div v-else class="space-y-2">
-                <template v-for="(group, round) in Object.groupBy(upcoming, f => f.round?.name ?? 'Fixtures')" :key="round">
+                <template v-for="(group, round) in Object.groupBy([...fixtures].reverse(), f => f.round?.name ?? 'Matches')" :key="round">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide pt-2 px-1">{{ round }}</p>
-                    <div v-for="fixture in group" :key="fixture.id"
-                        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-3"
+                    <component
+                        :is="fixture.status === 'completed' ? Link : 'div'"
+                        v-for="fixture in group"
+                        :key="fixture.id"
+                        :href="fixture.status === 'completed' ? `/fixtures/${fixture.id}` : undefined"
+                        :class="[
+                            'block bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-3',
+                            fixture.status === 'completed' ? 'hover:border-emerald-400 dark:hover:border-emerald-600 transition-colors' : '',
+                        ]"
                     >
                         <div class="flex items-center gap-3">
                             <span class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1 text-right">
                                 {{ fixture.home_team.short_name ?? fixture.home_team.name }}
                             </span>
                             <div class="flex flex-col items-center shrink-0">
-                                <span class="text-xs font-semibold text-slate-400">vs</span>
-                                <span v-if="fixture.scheduled_at" class="text-xs text-slate-400">{{ formatTime(fixture.scheduled_at) }}</span>
+                                <template v-if="fixture.status === 'completed'">
+                                    <span class="text-base font-bold tabular-nums px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-900 dark:text-slate-100">
+                                        {{ fixture.home_score }} : {{ fixture.away_score }}
+                                    </span>
+                                    <span v-if="fixture.home_score_pen !== null && fixture.away_score_pen !== null"
+                                        class="text-xs text-slate-400 tabular-nums mt-0.5">
+                                        pen {{ fixture.home_score_pen }}–{{ fixture.away_score_pen }}
+                                    </span>
+                                </template>
+                                <template v-else>
+                                    <span class="text-xs font-semibold text-slate-400">vs</span>
+                                    <span v-if="fixture.scheduled_at" class="text-xs text-slate-400">{{ formatTime(fixture.scheduled_at) }}</span>
+                                </template>
                             </div>
                             <span class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1">
                                 {{ fixture.away_team.short_name ?? fixture.away_team.name }}
@@ -160,42 +170,7 @@ function formatTime(val: string | null) {
                         <div v-if="fixture.scheduled_at" class="text-center text-xs text-slate-400 mt-0.5">
                             {{ formatDate(fixture.scheduled_at) }} · {{ formatTime(fixture.scheduled_at) }}
                         </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <!-- RESULTS -->
-        <div v-if="tab === 'results'">
-            <div v-if="results.length === 0" class="text-center py-16 text-slate-500 dark:text-slate-400">No results yet.</div>
-            <div v-else class="space-y-2">
-                <template v-for="(group, round) in Object.groupBy(results, f => f.round?.name ?? 'Results')" :key="round">
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide pt-2 px-1">{{ round }}</p>
-                    <Link v-for="fixture in group" :key="fixture.id"
-                        :href="`/fixtures/${fixture.id}`"
-                        class="block bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-3 hover:border-emerald-400 dark:hover:border-emerald-600 transition-colors"
-                    >
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1 text-right">
-                                {{ fixture.home_team.short_name ?? fixture.home_team.name }}
-                            </span>
-                            <div class="flex flex-col items-center shrink-0">
-                                <span class="text-base font-bold tabular-nums px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-900 dark:text-slate-100">
-                                    {{ fixture.home_score }} : {{ fixture.away_score }}
-                                </span>
-                                <span v-if="fixture.home_score_pen !== null && fixture.away_score_pen !== null"
-                                    class="text-xs text-slate-400 tabular-nums mt-0.5">
-                                    pen {{ fixture.home_score_pen }}–{{ fixture.away_score_pen }}
-                                </span>
-                            </div>
-                            <span class="text-sm font-medium text-slate-900 dark:text-slate-100 flex-1">
-                                {{ fixture.away_team.short_name ?? fixture.away_team.name }}
-                            </span>
-                        </div>
-                        <div v-if="fixture.scheduled_at" class="text-center text-xs text-slate-400 mt-0.5">
-                            {{ formatDate(fixture.scheduled_at) }} · {{ formatTime(fixture.scheduled_at) }}
-                        </div>
-                    </Link>
+                    </component>
                 </template>
             </div>
         </div>

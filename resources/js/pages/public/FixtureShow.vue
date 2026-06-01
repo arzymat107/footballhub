@@ -166,16 +166,12 @@ const statusStyle: Record<string, string> = {
         </div>
 
         <!-- Events timeline -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div v-if="events.length > 0" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide px-6 py-3 border-b border-slate-100 dark:border-slate-800">
                 Match Events
             </h2>
 
-            <div v-if="events.length === 0" class="text-center py-10 text-sm text-slate-400">
-                No events recorded.
-            </div>
-
-            <div v-else class="divide-y divide-slate-50 dark:divide-slate-800/60">
+            <div class="divide-y divide-slate-50 dark:divide-slate-800/60">
                 <div
                     v-for="event in events"
                     :key="event.id"
@@ -221,18 +217,12 @@ const statusStyle: Record<string, string> = {
         </div>
 
         <!-- Lineups -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div v-if="homeLineup.length > 0 || awayLineup.length > 0" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide px-6 py-3 border-b border-slate-100 dark:border-slate-800">
                 Lineups
             </h2>
 
-            <div v-if="homeLineup.length === 0 && awayLineup.length === 0"
-                class="text-center py-10 text-sm text-slate-400"
-            >
-                No lineups recorded.
-            </div>
-
-            <div v-else class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800">
+            <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800">
                 <!-- Home -->
                 <div class="p-4">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3 truncate">
