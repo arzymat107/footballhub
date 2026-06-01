@@ -12,7 +12,7 @@ class Season extends Model
 {
     protected $fillable = [
         'division_id', 'name', 'format', 'status',
-        'track_players', 'start_date', 'end_date',
+        'track_players', 'tiebreaker', 'start_date', 'end_date',
     ];
 
     protected $casts = [
@@ -100,11 +100,79 @@ class Season extends Model
             }
         }
 
-        return collect(array_values($table))
-            ->map(fn ($row) => array_merge($row, [
+        $rows = array_values(array_map(
+            fn ($row) => array_merge($row, [
                 'goal_difference' => $row['goals_for'] - $row['goals_against'],
-            ]))
-            ->sortByDesc(fn ($row) => [$row['points'], $row['goal_difference'], $row['goals_for']])
-            ->values();
+            ]),
+            $table
+        ));
+
+        if ($this->tiebreaker === 'h2h_first') {
+            $h2h = $this->buildH2hLookup($fixtures);
+            usort($rows, function ($a, $b) use ($h2h) {
+                if ($a['points'] !== $b['points']) {
+                    return $b['points'] <=> $a['points'];
+                }
+                $aid = $a['team']->id;
+                $bid = $b['team']->id;
+                $ah2h = $h2h[$aid][$bid] ?? ['points' => 0, 'gd' => 0, 'gf' => 0];
+                $bh2h = $h2h[$bid][$aid] ?? ['points' => 0, 'gd' => 0, 'gf' => 0];
+                if ($ah2h['points'] !== $bh2h['points']) {
+                    return $bh2h['points'] <=> $ah2h['points'];
+                }
+                if ($ah2h['gd'] !== $bh2h['gd']) {
+                    return $bh2h['gd'] <=> $ah2h['gd'];
+                }
+                if ($a['goal_difference'] !== $b['goal_difference']) {
+                    return $b['goal_difference'] <=> $a['goal_difference'];
+                }
+
+                return $b['goals_for'] <=> $a['goals_for'];
+            });
+        } else {
+            usort($rows, function ($a, $b) {
+                if ($a['points'] !== $b['points']) {
+                    return $b['points'] <=> $a['points'];
+                }
+                if ($a['goal_difference'] !== $b['goal_difference']) {
+                    return $b['goal_difference'] <=> $a['goal_difference'];
+                }
+
+                return $b['goals_for'] <=> $a['goals_for'];
+            });
+        }
+
+        return collect($rows)->values();
+    }
+
+    private function buildH2hLookup(\Illuminate\Support\Collection $fixtures): array
+    {
+        $h2h = [];
+        foreach ($fixtures as $fixture) {
+            $home = $fixture->home_team_id;
+            $away = $fixture->away_team_id;
+            $hg = $fixture->home_score;
+            $ag = $fixture->away_score;
+
+            if ($hg > $ag) {
+                $hp = 3; $ap = 0;
+            } elseif ($hg < $ag) {
+                $hp = 0; $ap = 3;
+            } else {
+                $hp = 1; $ap = 1;
+            }
+
+            $h2h[$home][$away] ??= ['points' => 0, 'gd' => 0, 'gf' => 0];
+            $h2h[$home][$away]['points'] += $hp;
+            $h2h[$home][$away]['gd']     += $hg - $ag;
+            $h2h[$home][$away]['gf']     += $hg;
+
+            $h2h[$away][$home] ??= ['points' => 0, 'gd' => 0, 'gf' => 0];
+            $h2h[$away][$home]['points'] += $ap;
+            $h2h[$away][$home]['gd']     += $ag - $hg;
+            $h2h[$away][$home]['gf']     += $ag;
+        }
+
+        return $h2h;
     }
 }

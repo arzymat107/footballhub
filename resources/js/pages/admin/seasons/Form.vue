@@ -7,7 +7,7 @@ const props = defineProps<{
     divisions: { id: number; name: string; league_id: number; league?: { name: string } }[];
     season?: {
         id: number; division_id: number; name: string; format: string;
-        status: string; track_players: boolean;
+        status: string; track_players: boolean; tiebreaker: string;
         start_date: string | null; end_date: string | null;
     };
     divisionId?: number;
@@ -26,6 +26,7 @@ const form = useForm({
     name: props.season?.name ?? '',
     format: props.season?.format ?? 'round_robin',
     status: props.season?.status ?? 'upcoming',
+    tiebreaker: props.season?.tiebreaker ?? 'gd_first',
     track_players: props.season?.track_players ?? false,
     start_date: props.season?.start_date?.substring(0, 10) ?? '',
     end_date: props.season?.end_date?.substring(0, 10) ?? '',
@@ -95,6 +96,15 @@ function submit() {
                     <input v-model="form.end_date" type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" />
                     <InputError :message="form.errors.end_date" />
                 </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Tiebreaker</label>
+                <select v-model="form.tiebreaker" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+                    <option value="gd_first">Points → Goal difference → Goals for</option>
+                    <option value="h2h_first">Points → Head-to-head → Goal difference</option>
+                </select>
+                <InputError :message="form.errors.tiebreaker" />
             </div>
 
             <label class="flex items-center gap-2.5 cursor-pointer">
