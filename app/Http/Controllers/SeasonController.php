@@ -30,6 +30,7 @@ class SeasonController extends Controller
             'fixtures'    => $fixtures,
             'stages'      => $stages,
             'playerStats' => $season->track_players ? $playerStats : [],
+            'public_stats' => $season->public_stats ?? [],
         ]);
     }
 

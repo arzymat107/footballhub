@@ -72,6 +72,7 @@ class SeasonTeamController extends Controller
             'fixtures' => $fixtures,
             'squad' => $squadData,
             'trackPlayers' => $season->track_players,
+            'public_stats' => $season->public_stats ?? [],
         ]);
     }
 }

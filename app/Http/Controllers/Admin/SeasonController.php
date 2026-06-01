@@ -75,6 +75,8 @@ class SeasonController extends Controller
             'status' => 'required|in:upcoming,active,completed',
             'tiebreaker' => 'required|in:gd_first,h2h_first',
             'track_players' => 'boolean',
+            'public_stats' => 'array',
+            'public_stats.*' => 'in:played,goals,cards,mvp,transfers',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
@@ -101,6 +103,8 @@ class SeasonController extends Controller
             'status' => 'required|in:upcoming,active,completed',
             'tiebreaker' => 'required|in:gd_first,h2h_first',
             'track_players' => 'boolean',
+            'public_stats' => 'array',
+            'public_stats.*' => 'in:played,goals,cards,mvp,transfers',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);

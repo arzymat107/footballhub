@@ -34,6 +34,7 @@ const props = defineProps<{
     }[];
     squad: SquadEntry[];
     trackPlayers: boolean;
+    public_stats: string[];
 }>();
 
 defineOptions({ layout: PublicLayout });
@@ -209,14 +210,14 @@ function formatTime(val: string | null) {
                             <tr>
                                 <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400 w-10">#</th>
                                 <th class="text-left px-4 py-3 font-medium text-slate-500 dark:text-slate-400">Player</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400 hidden md:table-cell">Joined</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400 hidden md:table-cell">Left</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">MP</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">⚽</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400 hidden sm:table-cell">OG</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">🟨</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">🟥</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">⭐</th>
+                                <th v-if="public_stats.includes('transfers')" class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400 hidden md:table-cell">Joined</th>
+                                <th v-if="public_stats.includes('transfers')" class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400 hidden md:table-cell">Left</th>
+                                <th v-if="public_stats.includes('played')" class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">MP</th>
+                                <th v-if="public_stats.includes('goals')" class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">⚽</th>
+                                <th v-if="public_stats.includes('goals')" class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400 hidden sm:table-cell">OG</th>
+                                <th v-if="public_stats.includes('cards')" class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">🟨</th>
+                                <th v-if="public_stats.includes('cards')" class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">🟥</th>
+                                <th v-if="public_stats.includes('mvp')" class="text-center px-3 py-3 font-medium text-slate-500 dark:text-slate-400">⭐</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -237,26 +238,26 @@ function formatTime(val: string | null) {
                                         >{{ entry.player.position }}</span>
                                     </div>
                                 </td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400 hidden md:table-cell text-xs">
+                                <td v-if="public_stats.includes('transfers')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400 hidden md:table-cell text-xs">
                                     {{ entry.joined_at ? formatDate(entry.joined_at) : '—' }}
                                 </td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400 hidden md:table-cell text-xs">
+                                <td v-if="public_stats.includes('transfers')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400 hidden md:table-cell text-xs">
                                     {{ entry.left_at ? formatDate(entry.left_at) : '—' }}
                                 </td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ entry.played }}</td>
-                                <td class="px-3 py-3 text-center font-semibold text-slate-900 dark:text-slate-100">
+                                <td v-if="public_stats.includes('played')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ entry.played }}</td>
+                                <td v-if="public_stats.includes('goals')" class="px-3 py-3 text-center font-semibold text-slate-900 dark:text-slate-100">
                                     {{ entry.goals > 0 ? entry.goals : '—' }}
                                 </td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400 hidden sm:table-cell">
+                                <td v-if="public_stats.includes('goals')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400 hidden sm:table-cell">
                                     {{ entry.own_goals > 0 ? entry.own_goals : '—' }}
                                 </td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">
+                                <td v-if="public_stats.includes('cards')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">
                                     {{ entry.yellow_cards > 0 ? entry.yellow_cards : '—' }}
                                 </td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">
+                                <td v-if="public_stats.includes('cards')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">
                                     {{ entry.red_cards > 0 ? entry.red_cards : '—' }}
                                 </td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">
+                                <td v-if="public_stats.includes('mvp')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">
                                     {{ entry.mvp > 0 ? entry.mvp : '—' }}
                                 </td>
                             </tr>

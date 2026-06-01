@@ -7,7 +7,7 @@ const props = defineProps<{
     divisions: { id: number; name: string; league_id: number; league?: { name: string } }[];
     season?: {
         id: number; division_id: number; name: string; format: string;
-        status: string; track_players: boolean; tiebreaker: string;
+        status: string; track_players: boolean; tiebreaker: string; public_stats: string[];
         start_date: string | null; end_date: string | null;
     };
     divisionId?: number;
@@ -28,6 +28,7 @@ const form = useForm({
     status: props.season?.status ?? 'upcoming',
     tiebreaker: props.season?.tiebreaker ?? 'gd_first',
     track_players: props.season?.track_players ?? false,
+    public_stats: props.season?.public_stats ?? [],
     start_date: props.season?.start_date?.substring(0, 10) ?? '',
     end_date: props.season?.end_date?.substring(0, 10) ?? '',
 });
@@ -111,6 +112,23 @@ function submit() {
                 <input v-model="form.track_players" type="checkbox" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
                 <span class="text-sm text-slate-700 dark:text-slate-300">Track player statistics</span>
             </label>
+
+            <div class="space-y-2">
+                <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Show on public pages</p>
+                <div class="flex flex-wrap gap-x-5 gap-y-2">
+                    <label v-for="opt in [
+                        { value: 'played',    label: 'Played' },
+                        { value: 'goals',     label: 'Goals' },
+                        { value: 'cards',     label: 'Cards' },
+                        { value: 'mvp',       label: 'MVP' },
+                        { value: 'transfers', label: 'Transfer dates' },
+                    ]" :key="opt.value" class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" :value="opt.value" v-model="form.public_stats" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                        <span class="text-sm text-slate-700 dark:text-slate-300">{{ opt.label }}</span>
+                    </label>
+                </div>
+                <InputError :message="form.errors.public_stats" />
+            </div>
 
             <div class="flex gap-3 pt-2">
                 <button type="submit" :disabled="form.processing" class="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors">

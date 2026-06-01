@@ -55,6 +55,7 @@ const props = defineProps<{
         round: { name: string } | null;
     }[];
     playerStats: PlayerStat[];
+    public_stats: string[];
 }>();
 
 defineOptions({ layout: PublicLayout });
@@ -65,7 +66,8 @@ const tabs = computed(() => {
         { key: 'fixtures', label: 'Fixtures', icon: Calendar },
         { key: 'results', label: 'Results', icon: Calendar },
     ];
-    if (props.season.track_players && props.playerStats.length > 0) {
+    const hasPlayerStats = props.public_stats.some(f => ['goals', 'cards', 'mvp'].includes(f));
+    if (props.season.track_players && props.playerStats.length > 0 && hasPlayerStats) {
         t.push({ key: 'players', label: 'Players', icon: Users });
     }
     return t;
@@ -92,7 +94,9 @@ const topMvps = computed(() =>
     [...props.playerStats].sort((a, b) => b.mvp - a.mvp).filter(p => p.mvp > 0)
 );
 
-const playerTab = ref<'scorers' | 'cards' | 'mvp'>('scorers');
+const playerTab = ref<'scorers' | 'cards' | 'mvp'>(
+    props.public_stats.includes('goals') ? 'scorers' : props.public_stats.includes('cards') ? 'cards' : 'mvp'
+);
 
 const orderedStages = computed(() => [...props.stages].reverse());
 
@@ -403,7 +407,11 @@ const positionBadge: Record<string, string> = {
             <!-- Sub-tabs -->
             <div class="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 w-fit">
                 <button
-                    v-for="pt in [{ key: 'scorers', label: '⚽ Top scorers' }, { key: 'cards', label: '🟨 Discipline' }, { key: 'mvp', label: '⭐ MVP' }]"
+                    v-for="pt in [
+                        ...(public_stats.includes('goals') ? [{ key: 'scorers', label: '⚽ Top scorers' }] : []),
+                        ...(public_stats.includes('cards') ? [{ key: 'cards',   label: '🟨 Discipline'  }] : []),
+                        ...(public_stats.includes('mvp')   ? [{ key: 'mvp',     label: '⭐ MVP'          }] : []),
+                    ]"
                     :key="pt.key"
                     @click="playerTab = pt.key as any"
                     :class="[
@@ -418,7 +426,7 @@ const positionBadge: Record<string, string> = {
             </div>
 
             <!-- Top scorers -->
-            <div v-if="playerTab === 'scorers'">
+            <div v-if="playerTab === 'scorers' && public_stats.includes('goals')">
                 <div v-if="topScorers.length === 0" class="text-center py-12 text-slate-500 dark:text-slate-400">No goals recorded yet.</div>
                 <div v-else class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <table class="w-full text-sm">
@@ -427,7 +435,7 @@ const positionBadge: Record<string, string> = {
                                 <th class="text-left px-4 py-3 font-medium text-slate-500 w-8">#</th>
                                 <th class="text-left px-4 py-3 font-medium text-slate-500">Player</th>
                                 <th class="text-left px-4 py-3 font-medium text-slate-500 hidden sm:table-cell">Team</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500">MP</th>
+                                <th v-if="public_stats.includes('played')" class="text-center px-3 py-3 font-medium text-slate-500">MP</th>
                                 <th class="text-center px-3 py-3 font-bold text-slate-700 dark:text-slate-300">⚽</th>
                             </tr>
                         </thead>
@@ -449,7 +457,7 @@ const positionBadge: Record<string, string> = {
                                     <p class="text-xs text-slate-400 sm:hidden mt-0.5">{{ stat.team.name }}</p>
                                 </td>
                                 <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">{{ stat.team.name }}</td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ stat.played }}</td>
+                                <td v-if="public_stats.includes('played')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ stat.played }}</td>
                                 <td class="px-3 py-3 text-center font-bold text-slate-900 dark:text-slate-100">{{ stat.goals }}</td>
                             </tr>
                         </tbody>
@@ -458,7 +466,7 @@ const positionBadge: Record<string, string> = {
             </div>
 
             <!-- Discipline -->
-            <div v-if="playerTab === 'cards'">
+            <div v-if="playerTab === 'cards' && public_stats.includes('cards')">
                 <div v-if="topCards.length === 0" class="text-center py-12 text-slate-500 dark:text-slate-400">No cards recorded yet.</div>
                 <div v-else class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <table class="w-full text-sm">
@@ -488,7 +496,7 @@ const positionBadge: Record<string, string> = {
             </div>
 
             <!-- MVP -->
-            <div v-if="playerTab === 'mvp'">
+            <div v-if="playerTab === 'mvp' && public_stats.includes('mvp')">
                 <div v-if="topMvps.length === 0" class="text-center py-12 text-slate-500 dark:text-slate-400">No MVPs recorded yet.</div>
                 <div v-else class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <table class="w-full text-sm">
@@ -497,7 +505,7 @@ const positionBadge: Record<string, string> = {
                                 <th class="text-left px-4 py-3 font-medium text-slate-500 w-8">#</th>
                                 <th class="text-left px-4 py-3 font-medium text-slate-500">Player</th>
                                 <th class="text-left px-4 py-3 font-medium text-slate-500 hidden sm:table-cell">Team</th>
-                                <th class="text-center px-3 py-3 font-medium text-slate-500">MP</th>
+                                <th v-if="public_stats.includes('played')" class="text-center px-3 py-3 font-medium text-slate-500">MP</th>
                                 <th class="text-center px-3 py-3 font-bold text-slate-700 dark:text-slate-300">⭐</th>
                             </tr>
                         </thead>
@@ -511,7 +519,7 @@ const positionBadge: Record<string, string> = {
                                     <p class="text-xs text-slate-400 sm:hidden mt-0.5">{{ stat.team.name }}</p>
                                 </td>
                                 <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">{{ stat.team.name }}</td>
-                                <td class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ stat.played }}</td>
+                                <td v-if="public_stats.includes('played')" class="px-3 py-3 text-center text-slate-500 dark:text-slate-400">{{ stat.played }}</td>
                                 <td class="px-3 py-3 text-center font-bold text-slate-900 dark:text-slate-100">{{ stat.mvp }}</td>
                             </tr>
                         </tbody>

@@ -12,13 +12,14 @@ class Season extends Model
 {
     protected $fillable = [
         'division_id', 'name', 'format', 'status',
-        'track_players', 'tiebreaker', 'start_date', 'end_date',
+        'track_players', 'public_stats', 'tiebreaker', 'start_date', 'end_date',
     ];
 
     protected $casts = [
         'track_players' => 'boolean',
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'public_stats' => 'array',
+        'start_date'    => 'date',
+        'end_date'      => 'date',
     ];
 
     public function division(): BelongsTo
